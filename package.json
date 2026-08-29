@@ -1,0 +1,107 @@
+{
+  "name": "timesheet-parrot",
+  "version": "0.1.0",
+  "description": "A local-first desktop timesheet and task timer.",
+  "main": "src/main/main.cjs",
+  "author": "Timesheet Parrot",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "start": "npm run dev",
+    "build:web": "vite build",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "build": "npm run rebuild && npm run build:web && electron-builder",
+    "build:win": "npm run rebuild && npm run build:web && electron-builder --win",
+    "build:linux": "npm run rebuild && npm run build:web && electron-builder --linux",
+    "build:mac": "npm run rebuild && npm run build:web && electron-builder --mac",
+    "build:all": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac",
+    "format": "prettier --write \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\""
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "chart.js": "4.5.1",
+    "exceljs": "4.4.0",
+    "heroicons": "2.2.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "4.2.0",
+    "@tailwindcss/vite": "4.3.3",
+    "concurrently": "10.0.5",
+    "electron": "44.0.0",
+    "electron-builder": "26.15.3",
+    "prettier": "3.9.6",
+    "tailwindcss": "4.3.3",
+    "vite": "8.2.2",
+    "wait-on": "9.1.0"
+  },
+  "build": {
+    "appId": "com.timesheetparrot.app",
+    "productName": "Timesheet Parrot",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
+    ],
+    "files": [
+      "dist/**/*",
+      "src/main/**/*",
+      "src/preload/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "src/renderer/locales",
+        "to": "locales"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Office"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "artifactName": "Timesheet-Parrot-${version}-${os}-${arch}.${ext}",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

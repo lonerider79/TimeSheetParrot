@@ -1,0 +1,26 @@
+<div class="floating-window h-full flex flex-col p-4">
+  <div class="titlebar flex items-center justify-between">
+    <div class="no-drag flex items-center gap-2">
+      <img src="./assets/parrot.png" class="w-8 h-8 object-contain" data-i18n-title="app.alt" />
+      <div>
+        <div class="font-bold text-sm" data-i18n="app.name"></div>
+        <div class="text-[10px] muted" data-i18n="floating.timer"></div>
+      </div>
+    </div>
+    <div class="no-drag flex gap-1">
+      <button class="icon-btn" id="float-min" data-i18n-title="common.minimize">
+        <span data-icon="minus"></span>
+      </button>
+      <button class="icon-btn" id="float-close" data-i18n-title="common.close">
+        <span data-icon="x-mark"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="text-center flex-1 flex flex-col justify-center">
+    <div id="float-task" class="font-bold"></div>
+    <div id="float-time" class="font-mono text-4xl font-black text-cyan-500 mt-2">00:00:00</div>
+    <div id="float-meta" class="muted text-xs mt-2"></div>
+    <div id="float-controls" class="mt-4"></div>
+  </div>
+</div>

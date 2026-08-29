@@ -1,0 +1,82 @@
+<div class="p-6 space-y-6 max-w-[1800px] mx-auto">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <div class="text-2xl font-black" data-i18n="dashboard.title"></div>
+      <div id="range-label" class="muted text-sm mt-1"></div>
+      <div class="muted text-xs mt-1" data-i18n="dashboard.subtitle"></div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <button class="icon-btn" id="period-prev" data-i18n-title="common.previous">
+        <span data-icon="chevron-left"></span>
+      </button>
+      <button class="btn btn-secondary text-sm" id="period-today" data-i18n="common.today"></button>
+      <button class="icon-btn" id="period-next" data-i18n-title="common.next">
+        <span data-icon="chevron-right"></span>
+      </button>
+      <button class="btn btn-secondary text-sm" id="export-btn">
+        <span data-icon="arrow-down-tray" class="icon-inline"></span>
+        <span data-i18n="common.export"></span>
+      </button>
+      <button class="btn btn-primary text-sm" id="new-task">
+        <span data-icon="plus" class="icon-inline"></span>
+        <span data-i18n="common.newTask"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card p-4 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3">
+    <label class="field">
+      <span data-i18n="dashboard.period"></span>
+      <select id="period-select" class="input"></select>
+    </label>
+    <label class="field">
+      <span data-i18n="dashboard.groupBy"></span>
+      <select id="group-select" class="input"></select>
+    </label>
+    <label class="field">
+      <span data-i18n="common.client"></span>
+      <select id="client-filter" class="input"></select>
+    </label>
+    <label class="field">
+      <span data-i18n="common.project"></span>
+      <select id="project-filter" class="input"></select>
+    </label>
+    <div class="field justify-end">
+      <div class="muted text-xs" data-i18n="dashboard.weekRowsHint"></div>
+    </div>
+  </div>
+
+  <div id="running-card"></div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-5">
+    <div class="card overflow-hidden">
+      <div class="table-scroll">
+        <table class="w-full text-sm">
+          <thead id="timesheet-head"></thead>
+          <tbody id="timesheet-body"></tbody>
+          <tfoot id="timesheet-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card p-5">
+      <div class="font-bold" data-i18n="dashboard.timeDistribution"></div>
+      <div class="muted text-xs mt-1" data-i18n="dashboard.chartHint"></div>
+      <div class="h-[250px] mt-5">
+        <canvas id="task-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="font-bold" data-i18n="dashboard.tasks"></div>
+        <div class="muted text-xs mt-1" data-i18n="dashboard.taskHint"></div>
+      </div>
+      <button class="text-xs text-cyan-500 hover:underline" id="manage-settings" data-i18n="dashboard.manage"></button>
+    </div>
+    <div id="task-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4"></div>
+  </div>
+</div>

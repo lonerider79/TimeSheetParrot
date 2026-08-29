@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Timesheet Parrot - Electron",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/electron/cli.js",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/node_modules/electron/cli.js"
+      },
+      "args": ["${workspaceFolder}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "ELECTRON_ENABLE_LOGGING": "true"
+      }
+    }
+  ]
+}

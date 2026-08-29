@@ -1,0 +1,199 @@
+<div class="app-shell h-full flex">
+  <aside class="sidebar w-[238px] shrink-0 border-r border-[var(--border)] bg-[var(--sidebar)] p-4 flex flex-col gap-5">
+    <div class="flex items-center gap-3 px-2">
+      <img src="./assets/parrot.png" class="w-11 h-11 object-contain" data-i18n-title="app.alt" />
+      <div class="sidebar-label">
+        <div class="font-bold leading-tight" data-i18n="app.name"></div>
+      </div>
+    </div>
+
+    <nav class="space-y-1">
+      <button class="nav-item w-full" data-route="dashboard">
+        <span data-icon="squares-2x2"></span>
+        <span class="sidebar-label" data-i18n="nav.dashboard"></span>
+      </button>
+      <button class="nav-item w-full" data-route="timer">
+        <span data-icon="clock"></span>
+        <span class="sidebar-label" data-i18n="nav.timer"></span>
+      </button>
+      <button class="nav-item w-full" data-route="settings">
+        <span data-icon="cog-6-tooth"></span>
+        <span class="sidebar-label" data-i18n="nav.settings"></span>
+      </button>
+      <button class="nav-item w-full" data-route="about">
+        <span data-icon="information-circle"></span>
+        <span class="sidebar-label" data-i18n="nav.about"></span>
+      </button>
+    </nav>
+
+    <div class="mt-auto sidebar-label text-xs muted px-2">
+      <span data-i18n="nav.localFirst"></span>
+      <br />
+      <span data-i18n="nav.desktop"></span>
+    </div>
+  </aside>
+
+  <main class="min-w-0 flex-1 flex flex-col">
+    <header class="titlebar h-14 shrink-0 flex items-center justify-between border-b border-[var(--border)] px-5 bg-[var(--header)]">
+      <div class="no-drag flex items-center gap-3">
+        <div id="page-title" class="text-sm font-semibold"></div>
+        <span id="running-pill"></span>
+      </div>
+
+      <div class="no-drag flex items-center gap-2">
+        <button class="icon-btn" id="theme-toggle" data-i18n-title="settings.dayNight">
+          <span data-icon="sun"></span>
+        </button>
+        <button class="btn btn-secondary text-sm" id="top-timer">
+          <span data-icon="clock" class="icon-inline"></span>
+          <span data-i18n="nav.timer"></span>
+        </button>
+        <button class="icon-btn" id="minimize-btn" data-i18n-title="common.minimize">
+          <span data-icon="minus"></span>
+        </button>
+      </div>
+    </header>
+
+    <section id="view" class="min-h-0 flex-1 overflow-auto"></section>
+  </main>
+</div>
+
+<div id="task-modal" class="modal-backdrop hidden">
+  <div class="modal-card w-[min(620px,calc(100vw-32px))]">
+    <div class="flex items-center justify-between mb-5">
+      <div class="text-lg font-bold" id="task-modal-title"></div>
+      <button class="icon-btn" id="task-modal-close" data-i18n-title="common.close">
+        <span data-icon="x-mark"></span>
+      </button>
+    </div>
+
+    <form id="task-form" class="space-y-4">
+      <input type="hidden" id="task-id" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="field">
+          <span data-i18n="settings.taskName"></span>
+          <input id="task-name" class="input" required maxlength="120" />
+        </label>
+        <label class="field">
+          <span data-i18n="settings.color"></span>
+          <input id="task-color" type="color" class="input h-11 p-1" value="#06b6d4" />
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="field">
+          <span data-i18n="common.client"></span>
+          <select id="task-client" class="input"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="common.project"></span>
+          <select id="task-project" class="input"></select>
+        </label>
+      </div>
+
+      <label class="check-row">
+        <input id="task-billable" type="checkbox" checked />
+        <span data-i18n="settings.billableTask"></span>
+      </label>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="field">
+          <span data-i18n="settings.currencyOverride"></span>
+          <select id="task-currency" class="input"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="settings.rateOverride"></span>
+          <input id="task-rate" type="number" min="0" step="0.01" class="input" />
+        </label>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn btn-secondary" id="task-cancel" data-i18n="common.cancel"></button>
+        <button class="btn btn-primary" type="submit" data-i18n="common.save"></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="entity-modal" class="modal-backdrop hidden">
+  <div class="modal-card w-[min(560px,calc(100vw-32px))]">
+    <div class="flex items-center justify-between mb-5">
+      <div class="text-lg font-bold" id="entity-modal-title"></div>
+      <button class="icon-btn" id="entity-modal-close" data-i18n-title="common.close">
+        <span data-icon="x-mark"></span>
+      </button>
+    </div>
+
+    <form id="entity-form" class="space-y-4">
+      <input type="hidden" id="entity-id" />
+      <input type="hidden" id="entity-type" />
+
+      <label class="field">
+        <span id="entity-name-label"></span>
+        <input id="entity-name" class="input" required maxlength="160" />
+      </label>
+
+      <div id="project-client-field"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="field">
+          <span data-i18n="settings.billingCurrency"></span>
+          <select id="entity-currency" class="input"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="settings.defaultRate"></span>
+          <input id="entity-rate" type="number" min="0" step="0.01" class="input" value="0" />
+        </label>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn btn-secondary" id="entity-cancel" data-i18n="common.cancel"></button>
+        <button class="btn btn-primary" type="submit" data-i18n="common.save"></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="entry-modal" class="modal-backdrop hidden">
+  <div class="modal-card w-[min(620px,calc(100vw-32px))]">
+    <div class="flex items-center justify-between mb-5">
+      <div class="text-lg font-bold" data-i18n="timer.editEntry"></div>
+      <button class="icon-btn" id="entry-modal-close" data-i18n-title="common.close">
+        <span data-icon="x-mark"></span>
+      </button>
+    </div>
+
+    <form id="entry-form" class="space-y-4">
+      <input type="hidden" id="entry-id" />
+
+      <label class="field">
+        <span data-i18n="common.task"></span>
+        <select id="entry-task" class="input"></select>
+      </label>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="field">
+          <span data-i18n="timer.startTime"></span>
+          <input id="entry-start" type="datetime-local" class="input" required />
+        </label>
+        <label class="field">
+          <span data-i18n="timer.endTime"></span>
+          <input id="entry-end" type="datetime-local" class="input" />
+        </label>
+      </div>
+
+      <label class="field">
+        <span data-i18n="timer.notes"></span>
+        <textarea id="entry-note" class="input min-h-24"></textarea>
+      </label>
+
+      <div id="entry-duration-preview" class="soft-card text-sm"></div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn btn-secondary" id="entry-cancel" data-i18n="common.cancel"></button>
+        <button class="btn btn-primary" type="submit" data-i18n="common.save"></button>
+      </div>
+    </form>
+  </div>
+</div>

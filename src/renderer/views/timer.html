@@ -1,0 +1,52 @@
+<div class="p-6 space-y-6 max-w-6xl mx-auto">
+  <div class="card p-8 text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-500/10 text-cyan-500">
+      <span data-icon="clock" data-icon-class="w-8 h-8"></span>
+    </div>
+    <div class="text-2xl font-black mt-4" data-i18n="page.timer"></div>
+    <div id="timer-task" class="muted mt-1"></div>
+    <div id="timer-display" class="font-mono text-6xl font-black tracking-tight text-cyan-500 mt-8">00:00:00</div>
+    <div id="timer-meta" class="muted text-sm mt-3"></div>
+
+    <div class="flex flex-wrap justify-center gap-3 mt-8">
+      <select id="timer-select" class="input max-w-xs"></select>
+      <button class="btn btn-primary" id="timer-start">
+        <span data-icon="play" data-icon-class="w-4 h-4"></span>
+        <span data-i18n="timer.start"></span>
+      </button>
+      <button class="btn btn-danger hidden" id="timer-stop">
+        <span data-icon="stop" data-icon-class="w-4 h-4"></span>
+        <span data-i18n="timer.stopSave"></span>
+      </button>
+      <button class="btn btn-secondary" id="floating-timer">
+        <span data-icon="window" data-icon-class="w-4 h-4"></span>
+        <span data-i18n="timer.floating"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="p-5 border-b border-[var(--border)]">
+      <div class="font-bold" data-i18n="timer.history"></div>
+      <div class="muted text-xs mt-1" data-i18n="timer.historyHint"></div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left border-b border-[var(--border)]">
+            <th class="p-4" data-i18n="timer.created"></th>
+            <th class="p-4" data-i18n="common.task"></th>
+            <th class="p-4" data-i18n="common.client"></th>
+            <th class="p-4" data-i18n="common.project"></th>
+            <th class="p-4" data-i18n="timer.startTime"></th>
+            <th class="p-4" data-i18n="timer.endTime"></th>
+            <th class="p-4" data-i18n="common.hours"></th>
+            <th class="p-4" data-i18n="common.actions"></th>
+          </tr>
+        </thead>
+        <tbody id="entry-list"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
