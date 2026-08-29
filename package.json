@@ -25,7 +25,7 @@
   "dependencies": {
     "better-sqlite3": "13.0.3",
     "chart.js": "4.5.1",
-    "exceljs": "4.4.0",
+    "exceljs": "^3.4.0",
     "heroicons": "2.2.0"
   },
   "devDependencies": {
@@ -66,11 +66,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -78,11 +82,15 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "category": "Office"
@@ -91,7 +99,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.productivity"
