@@ -3,6 +3,10 @@
 // the Electron main process, and uses the preload API for all native operations.
 import Chart from 'chart.js/auto'
 
+// Load the application stylesheet before rendering any UI.
+// Without this import Vite does not include styles.css in the renderer bundle.
+import './styles.css'
+
 import { hydrateIcons, icon } from './icons.js'
 
 import aboutTemplate from './views/about.html?raw'

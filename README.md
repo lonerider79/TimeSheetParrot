@@ -4,11 +4,6 @@ Timesheet Parrot is a local-first desktop timesheet and task timer built with El
 
 The project intentionally uses **JavaScript only**. There is no TypeScript.
 
-## Important: fresh database schema
-
-This package is version `0.1.0` and intentionally does not include migrations. The SQLite schema is created fresh.
-
-If an older development database exists, remove it before testing this package.
 
 ## First run and workspace import
 
@@ -29,8 +24,7 @@ The source folder is:
 
 ```text
 src/renderer/locales/
-├── en.json
-└── ml.json
+
 ```
 
 Add another file such as:
@@ -45,19 +39,6 @@ For packaged builds, the locale folder is copied to the application's `resources
 
 `en.json` is the canonical translation contract. All user-visible application strings are represented there, including renderer text, workspace messages, tray labels and Excel export headers.
 
-## Database naming
-
-The database uses explicit entity names:
-
-- `client_id`, `client_name`
-- `project_id`, `project_name`
-- `task_id`, `task_name`
-- `time_entry_id`
-- `currency_code`, `currency_symbol`, `currency_name`
-
-Currencies are stored in SQLite rather than in a renderer-side array.
-
-Time entries also have a `deleted` flag. Deleting an entry is a soft delete: the row remains in SQLite and is shown in the timer history as deleted.
 
 ## Timer history
 
@@ -146,9 +127,6 @@ The build output is written to `release/`.
 
 No code signing or notarization credentials are included. Those can be added later as GitHub Actions secrets.
 
-## Readability
-
-The Electron main process, database, repository and renderer code is deliberately written with normal multi-line functions and comments. Prettier is included to keep formatting consistent without compressing the source into one-line functions.
 
 ## Architecture
 
@@ -173,3 +151,8 @@ This keeps the renderer independent from SQLite and leaves room for future local
 ## License
 
 GPLv3-only.
+
+
+## Important renderer note
+
+The renderer entry point imports `src/renderer/styles.css` directly. Vite therefore bundles Tailwind and the application's custom CSS into the renderer build. Locale files remain under `src/renderer/locales/` and are discovered by the Electron main process at startup.
