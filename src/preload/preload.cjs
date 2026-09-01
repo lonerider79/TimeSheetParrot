@@ -7,6 +7,19 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
     getInfo: () => ipcRenderer.invoke('app:getInfo'),
   },
 
+  updater: {
+    check: () => ipcRenderer.invoke('updater:check'),
+    install: () => ipcRenderer.invoke('updater:install'),
+    onStatus: callback => {
+      const listener = (_, status) => callback(status)
+      ipcRenderer.on('updater:status', listener)
+
+      return () => {
+        ipcRenderer.removeListener('updater:status', listener)
+      }
+    },
+  },
+
   locales: {
     list: () => ipcRenderer.invoke('locales:list'),
     get: localeCode => ipcRenderer.invoke('locales:get', localeCode),

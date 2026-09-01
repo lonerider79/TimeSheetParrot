@@ -40,6 +40,7 @@ let dashboardClientFilter = ''
 let dashboardProjectFilter = ''
 let timerInterval = null
 let runningCardInterval = null
+let removeUpdaterStatusListener = null
 
 function t(key) {
   return localeDictionary[key] ?? key
@@ -50,6 +51,61 @@ function escapeHtml(value) {
   element.textContent = value ?? ''
 
   return element.innerHTML
+}
+
+function getUpdaterStatusText(status) {
+  if (!status) {
+    return ''
+  }
+
+  if (status.state === 'checking') {
+    return t('update.checking')
+  }
+
+  if (status.state === 'available') {
+    return `${t('update.available')} ${t('update.version')}: ${status.version}`
+  }
+
+  if (status.state === 'downloading') {
+    return `${t('update.downloading')} ${status.percent || 0}%`
+  }
+
+  if (status.state === 'downloaded') {
+    return `${t('update.downloaded')} ${t('update.version')}: ${status.version}`
+  }
+
+  if (status.state === 'latest') {
+    return t('update.latest')
+  }
+
+  if (status.state === 'unsupported') {
+    return t('update.unsupported')
+  }
+
+  if (status.state === 'error') {
+    return t('update.error')
+  }
+
+  return ''
+}
+
+function attachUpdaterStatusListener() {
+  if (removeUpdaterStatusListener) {
+    removeUpdaterStatusListener()
+  }
+
+  removeUpdaterStatusListener = api.updater.onStatus(status => {
+    const statusElement = document.querySelector('#update-status')
+    const installButton = document.querySelector('#install-update-btn')
+
+    if (statusElement) {
+      statusElement.textContent = getUpdaterStatusText(status)
+    }
+
+    if (installButton) {
+      installButton.classList.toggle('hidden', status.state !== 'downloaded')
+    }
+  })
 }
 
 async function loadLocales() {
@@ -87,7 +143,8 @@ async function setLocale(nextLocale) {
 
 function applyTranslations(root = document) {
   root.querySelectorAll('[data-i18n]').forEach(element => {
-    element.textContent = t(element.dataset.i18n)
+    //element.textContent = t(element.dataset.i18n)
+    element.innerHTML = t(element.dataset.i18n); //easier to format
   })
 
   root.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
@@ -1684,6 +1741,20 @@ async function renderAbout() {
 
   const info = await api.app.getInfo()
   document.querySelector('#about-version').textContent = `${t('about.version')} ${info.version}`
+
+  const checkButton = document.querySelector('#check-updates-btn')
+  const installButton = document.querySelector('#install-update-btn')
+  const statusElement = document.querySelector('#update-status')
+
+  checkButton?.addEventListener('click', async () => {
+    statusElement.textContent = t('update.checking')
+    installButton?.classList.add('hidden')
+    await api.updater.check()
+  })
+
+  installButton?.addEventListener('click', async () => {
+    await api.updater.install()
+  })
 }
 
 function renderFloatingTimer() {
@@ -1856,6 +1927,7 @@ async function navigate(route) {
 }
 
 async function boot() {
+  attachUpdaterStatusListener()
   await loadLocales()
 
   if (location.hash === '#/workspace') {

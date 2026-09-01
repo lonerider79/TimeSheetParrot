@@ -138,7 +138,12 @@ button {
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.22);
 }
-
+.btn-warning {
+  background: #efb344;
+  color: #06202a;
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  font-weight: 700;
+}
 .icon-btn {
   width: 36px;
   height: 36px;

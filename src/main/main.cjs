@@ -23,6 +23,7 @@ const {
   createTimeEntriesRepository,
 } = require('./repositories/timeEntriesRepository.cjs')
 const { exportTimesheet } = require('./export.cjs')
+const { autoUpdater } = require('electron-updater')
 
 let mainWindow = null
 let timerWindow = null
@@ -32,10 +33,128 @@ let database = null
 let repository = null
 let localeFiles = new Map()
 let currentLocale = 'en'
+let updateCheckInProgress = false
 
 const isDevelopment = !app.isPackaged
 const rendererUrl = 'http://127.0.0.1:5173'
 const rendererFile = path.join(__dirname, '../../dist/index.html')
+
+function isAutoUpdateSupported() {
+  if (!app.isPackaged) {
+    return false
+  }
+
+  if (process.platform === 'win32' && process.env.PORTABLE_EXECUTABLE_FILE) {
+    return false
+  }
+
+  if (process.platform === 'linux' && !process.env.APPIMAGE) {
+    return false
+  }
+
+  return ['win32', 'darwin', 'linux'].includes(process.platform)
+}
+
+function sendUpdaterStatus(status) {
+  BrowserWindow.getAllWindows().forEach(browserWindow => {
+    if (!browserWindow.isDestroyed()) {
+      browserWindow.webContents.send('updater:status', status)
+    }
+  })
+}
+
+function setupAutoUpdater() {
+  if (!isAutoUpdateSupported()) {
+    return
+  }
+
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('checking-for-update', () => {
+    sendUpdaterStatus({ state: 'checking' })
+  })
+
+  autoUpdater.on('update-available', info => {
+    sendUpdaterStatus({
+      state: 'available',
+      version: info.version,
+    })
+  })
+
+  autoUpdater.on('download-progress', progress => {
+    sendUpdaterStatus({
+      state: 'downloading',
+      percent: Math.round(progress.percent),
+    })
+  })
+
+  autoUpdater.on('update-downloaded', info => {
+    sendUpdaterStatus({
+      state: 'downloaded',
+      version: info.version,
+    })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    updateCheckInProgress = false
+    sendUpdaterStatus({ state: 'latest' })
+  })
+
+  autoUpdater.on('error', error => {
+    updateCheckInProgress = false
+    console.error('Automatic update check failed:', error)
+    sendUpdaterStatus({ state: 'error' })
+  })
+}
+
+async function checkForUpdates() {
+  if (!isAutoUpdateSupported()) {
+    return {
+      supported: false,
+      state: 'unsupported',
+    }
+  }
+
+  if (updateCheckInProgress) {
+    return {
+      supported: true,
+      state: 'checking',
+    }
+  }
+
+  updateCheckInProgress = true
+
+  try {
+    await autoUpdater.checkForUpdates()
+
+    return {
+      supported: true,
+      state: 'checking',
+    }
+  } catch (error) {
+    updateCheckInProgress = false
+    console.error('Manual update check failed:', error)
+    sendUpdaterStatus({ state: 'error' })
+
+    return {
+      supported: true,
+      state: 'error',
+    }
+  }
+}
+
+function scheduleAutomaticUpdateCheck() {
+  if (!isAutoUpdateSupported()) {
+    return
+  }
+
+  setTimeout(() => {
+    checkForUpdates().catch(error => {
+      console.error('Automatic update check failed:', error)
+    })
+  }, 5000)
+}
 
 function getLocaleDirectory() {
   if (isDevelopment) {
@@ -170,9 +289,9 @@ function createWorkspaceWindow() {
   workspaceWindow = new BrowserWindow(
     baseWindowOptions({
       width: 760,
-      height: 620,
+      height: 500,
       minWidth: 680,
-      minHeight: 560,
+      minHeight: 500,
       resizable: false,
       maximizable: false,
       minimizable: false,
@@ -190,6 +309,9 @@ function createWorkspaceWindow() {
 
   workspaceWindow.on('closed', () => {
     workspaceWindow = null
+    if(database ===null) 
+      app.quit() // If the workspace window is closed without any selection, exit the application.
+    
   })
 }
 
@@ -321,6 +443,18 @@ function setupIpc() {
     version: app.getVersion(),
     platform: process.platform,
   }))
+
+  ipcMain.handle('updater:check', () => checkForUpdates())
+
+  ipcMain.handle('updater:install', () => {
+    if (!isAutoUpdateSupported()) {
+      return { success: false, supported: false }
+    }
+
+    autoUpdater.quitAndInstall()
+
+    return { success: true }
+  })
 
   ipcMain.handle('locales:list', () => ({
     locales: getLocaleSummary(),
@@ -579,6 +713,7 @@ app.whenReady().then(() => {
   const hasDatabase = fs.existsSync(databasePath)
 
   setupIpc()
+  setupAutoUpdater()
 
   if (hasDatabase) {
     try {
@@ -597,6 +732,8 @@ app.whenReady().then(() => {
     currentLocale = 'en'
     createWorkspaceWindow()
   }
+
+  scheduleAutomaticUpdateCheck()
 
   app.on('activate', () => {
     if (!mainWindow && repository) {

@@ -1,13 +1,13 @@
 {
-  "name": "timesheet-parrot",
-  "version": "0.1.0",
+  "name": "TimeSheetParrot",
+  "version": "0.1.1",
   "description": "A local-first desktop timesheet and task timer.",
   "main": "src/main/main.cjs",
   "author": "Timesheet Parrot",
   "license": "GPL-3.0-only",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron .\"",
@@ -15,18 +15,20 @@
     "build:web": "vite build",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "build": "npm run rebuild && npm run build:web && electron-builder",
-    "build:win": "npm run rebuild && npm run build:web && electron-builder --win",
-    "build:linux": "npm run rebuild && npm run build:web && electron-builder --linux",
-    "build:mac": "npm run rebuild && npm run build:web && electron-builder --mac",
-    "build:all": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac",
+    "build:win": "npm run rebuild && npm run build:web && electron-builder --win --publish always",
+    "build:linux": "npm run rebuild && npm run build:web && electron-builder --linux --publish always",
+    "build:mac": "npm run rebuild && npm run build:web && electron-builder --mac --publish always",
+    "build:all": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish always",
     "format": "prettier --write \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\""
+    "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\"",
+    "release": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish always"
   },
   "dependencies": {
     "better-sqlite3": "13.0.3",
     "chart.js": "4.5.1",
-    "exceljs": "^3.4.0",
-    "heroicons": "2.2.0"
+    "exceljs": "4.4.0",
+    "heroicons": "2.2.0",
+    "electron-updater": "6.8.9"
   },
   "devDependencies": {
     "@electron/rebuild": "4.2.0",
@@ -63,6 +65,7 @@
       "output": "release"
     },
     "win": {
+      "icon": "assets/parrotTS.ico",
       "target": [
         {
           "target": "nsis",
@@ -79,6 +82,7 @@
       ]
     },
     "linux": {
+      "icon": "assets/parrotTS.png",
       "target": [
         {
           "target": "AppImage",
@@ -96,9 +100,17 @@
       "category": "Office"
     },
     "mac": {
+      "icon": "assets/parrotTS.icns",
       "target": [
         {
           "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
           "arch": [
             "x64",
             "arm64"
@@ -113,6 +125,23 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "lonerider79",
+        "repo": "TimeSheetParrot",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "overrides": {
+    "exceljs": {
+      "archiver": "7.0.1",
+      "fast-csv": "5.0.7",
+      "tmp": "0.2.7",
+      "unzipper": "0.12.5",
+      "uuid": "11.1.1"
     }
   }
 }

@@ -24,6 +24,7 @@ import language from 'heroicons/24/outline/language.svg?url'
 import archive from 'heroicons/24/outline/archive-box.svg?url'
 import documentArrowUp from 'heroicons/24/outline/document-arrow-up.svg?url'
 import windowIcon from 'heroicons/24/outline/rectangle-group.svg?url'
+import loadSettings from 'heroicons/24/outline/arrow-up-tray.svg?url' 
 
 const icons = {
   'squares-2x2': squares2x2,
@@ -51,6 +52,7 @@ const icons = {
   'archive-box': archive,
   'document-arrow-up': documentArrowUp,
   window: windowIcon,
+  loadSettings
 }
 
 export function icon(name, className = 'w-5 h-5') {
