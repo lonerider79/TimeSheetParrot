@@ -1,22 +1,36 @@
 <div class="min-h-full flex items-center justify-center p-8">
   <div class="w-full max-w-3xl space-y-7">
     <div class="text-center">
-      <img src="./assets/parrot.png" class="w-28 h-28 object-contain mx-auto" data-i18n-title="app.alt" />
+      <img
+        src="./assets/parrot.png"
+        class="w-28 h-28 object-contain mx-auto"
+        data-i18n-title="app.alt"
+      />
       <h1 class="text-3xl font-black mt-4" data-i18n="workspace.title"></h1>
       <p class="muted mt-2 max-w-xl mx-auto" data-i18n="workspace.subtitle"></p>
     </div>
 
     <div id="workspace-options" class="grid grid-cols-2 gap-5">
-      <button id="workspace-initialize" class="card p-2 w-auto text-left hover:border-cyan-400/50 transition-colors">
-        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center">
+      <button
+        id="workspace-initialize"
+        class="card p-2 w-auto text-left hover:border-cyan-400/50 transition-colors"
+      >
+        <div
+          class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center"
+        >
           <span data-icon="plus" data-icon-class="w-7 h-7"></span>
         </div>
         <div class="muted text-sm mt-2" data-i18n="workspace.initializeDescription"></div>
         <div class="btn btn-primary mt-5" data-i18n="workspace.initializeButton"></div>
       </button>
 
-      <button id="workspace-load" class="card p-2 w-auto text-left hover:border-cyan-400/50 transition-colors">
-        <div class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
+      <button
+        id="workspace-load"
+        class="card p-2 w-auto text-left hover:border-cyan-400/50 transition-colors"
+      >
+        <div
+          class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center"
+        >
           <span data-icon="loadSettings" data-icon-class="w-7 h-7"></span>
         </div>
         <div class="muted text-sm mt-2" data-i18n="workspace.loadDescription"></div>
@@ -39,14 +53,24 @@
     </div>
 
     <div id="workspace-failure" class="card p-6 hidden">
-      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+      <div
+        class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center"
+      >
         <span data-icon="information-circle" data-icon-class="w-7 h-7"></span>
       </div>
       <div class="text-lg font-bold mt-4" data-i18n="workspace.failureTitle"></div>
       <div id="workspace-failure-message" class="muted text-sm mt-2"></div>
       <div class="flex flex-wrap gap-2 mt-5">
-        <button id="workspace-continue" class="btn btn-primary" data-i18n="workspace.continue"></button>
-        <button id="workspace-another" class="btn btn-secondary" data-i18n="workspace.chooseAnother"></button>
+        <button
+          id="workspace-continue"
+          class="btn btn-primary"
+          data-i18n="workspace.continue"
+        ></button>
+        <button
+          id="workspace-another"
+          class="btn btn-secondary"
+          data-i18n="workspace.chooseAnother"
+        ></button>
       </div>
     </div>
   </div>

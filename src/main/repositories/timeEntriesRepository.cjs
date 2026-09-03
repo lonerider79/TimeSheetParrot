@@ -283,7 +283,8 @@ function createTimeEntriesRepository(database) {
 
     const useTaskCurrency = Boolean(row.task_currency_code)
     const useProjectCurrency = !useTaskCurrency && Boolean(row.project_currency_code)
-    const useClientCurrency = !useTaskCurrency && !useProjectCurrency && Boolean(row.client_currency_code)
+    const useClientCurrency =
+      !useTaskCurrency && !useProjectCurrency && Boolean(row.client_currency_code)
 
     return {
       ...row,
@@ -311,10 +312,10 @@ function createTimeEntriesRepository(database) {
             ? row.client_currency_name
             : 'US Dollar',
       effective_rate: useTaskCurrency
-        ? row.task_rate ?? 0
+        ? (row.task_rate ?? 0)
         : useProjectCurrency
-          ? row.project_rate ?? 0
-          : row.client_rate ?? 0,
+          ? (row.project_rate ?? 0)
+          : (row.client_rate ?? 0),
     }
   }
 
@@ -437,9 +438,7 @@ function createTimeEntriesRepository(database) {
     },
 
     getEntries(startIso, endIso) {
-      return statements.entriesBetween
-        .all(endIso, endIso, startIso)
-        .map(effective)
+      return statements.entriesBetween.all(endIso, endIso, startIso).map(effective)
     },
 
     getEntry(timeEntryId) {
@@ -457,11 +456,7 @@ function createTimeEntriesRepository(database) {
     },
 
     stopTimer(timeEntryId, endedAt, durationSeconds) {
-      statements.stop.run(
-        endedAt,
-        Math.max(0, Math.round(durationSeconds)),
-        timeEntryId,
-      )
+      statements.stop.run(endedAt, Math.max(0, Math.round(durationSeconds)), timeEntryId)
 
       return getEntry(timeEntryId)
     },

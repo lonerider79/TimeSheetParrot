@@ -49,9 +49,7 @@ async function exportTimesheet(filePath, rows, rangeLabel, labels) {
   for (const row of rows) {
     const hours = Number((Number(row.seconds || 0) / 3600).toFixed(2))
     const rate = Number(row.rate || 0)
-    const amount = row.billable
-      ? Number((hours * rate).toFixed(2))
-      : 0
+    const amount = row.billable ? Number((hours * rate).toFixed(2)) : 0
 
     worksheet.addRow([
       row.date,

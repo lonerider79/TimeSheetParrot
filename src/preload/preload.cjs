@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
   updater: {
     check: () => ipcRenderer.invoke('updater:check'),
     install: () => ipcRenderer.invoke('updater:install'),
-    onStatus: callback => {
+    onStatus: (callback) => {
       const listener = (_, status) => callback(status)
       ipcRenderer.on('updater:status', listener)
 
@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
 
   locales: {
     list: () => ipcRenderer.invoke('locales:list'),
-    get: localeCode => ipcRenderer.invoke('locales:get', localeCode),
+    get: (localeCode) => ipcRenderer.invoke('locales:get', localeCode),
   },
 
   window: {
@@ -35,9 +35,9 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
   workspace: {
     initialize: () => ipcRenderer.invoke('workspace:initialize'),
     chooseDatabase: () => ipcRenderer.invoke('workspace:chooseDatabase'),
-    import: filePath => ipcRenderer.invoke('workspace:import', filePath),
+    import: (filePath) => ipcRenderer.invoke('workspace:import', filePath),
     continue: () => ipcRenderer.invoke('workspace:continue'),
-    onProgress: callback => {
+    onProgress: (callback) => {
       const listener = (_, progress) => callback(progress)
       ipcRenderer.on('workspace:progress', listener)
 
@@ -53,45 +53,45 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
 
   tasks: {
     list: () => ipcRenderer.invoke('tasks:list'),
-    add: payload => ipcRenderer.invoke('tasks:add', payload),
-    update: payload => ipcRenderer.invoke('tasks:update', payload),
-    archive: taskId => ipcRenderer.invoke('tasks:archive', taskId),
+    add: (payload) => ipcRenderer.invoke('tasks:add', payload),
+    update: (payload) => ipcRenderer.invoke('tasks:update', payload),
+    archive: (taskId) => ipcRenderer.invoke('tasks:archive', taskId),
   },
 
   clients: {
     list: () => ipcRenderer.invoke('clients:list'),
-    add: payload => ipcRenderer.invoke('clients:add', payload),
-    update: payload => ipcRenderer.invoke('clients:update', payload),
-    archive: clientId => ipcRenderer.invoke('clients:archive', clientId),
+    add: (payload) => ipcRenderer.invoke('clients:add', payload),
+    update: (payload) => ipcRenderer.invoke('clients:update', payload),
+    archive: (clientId) => ipcRenderer.invoke('clients:archive', clientId),
   },
 
   projects: {
     list: () => ipcRenderer.invoke('projects:list'),
-    add: payload => ipcRenderer.invoke('projects:add', payload),
-    update: payload => ipcRenderer.invoke('projects:update', payload),
-    archive: projectId => ipcRenderer.invoke('projects:archive', projectId),
+    add: (payload) => ipcRenderer.invoke('projects:add', payload),
+    update: (payload) => ipcRenderer.invoke('projects:update', payload),
+    archive: (projectId) => ipcRenderer.invoke('projects:archive', projectId),
   },
 
   timer: {
     running: () => ipcRenderer.invoke('timer:running'),
-    start: payload => ipcRenderer.invoke('timer:start', payload),
-    stop: payload => ipcRenderer.invoke('timer:stop', payload),
+    start: (payload) => ipcRenderer.invoke('timer:start', payload),
+    stop: (payload) => ipcRenderer.invoke('timer:stop', payload),
   },
 
   timeEntries: {
-    listRecent: limit => ipcRenderer.invoke('timeEntries:listRecent', limit),
-    update: payload => ipcRenderer.invoke('timeEntries:update', payload),
-    delete: timeEntryId => ipcRenderer.invoke('timeEntries:delete', timeEntryId),
-    restart: taskId => ipcRenderer.invoke('timeEntries:restart', taskId),
+    listRecent: (limit) => ipcRenderer.invoke('timeEntries:listRecent', limit),
+    update: (payload) => ipcRenderer.invoke('timeEntries:update', payload),
+    delete: (timeEntryId) => ipcRenderer.invoke('timeEntries:delete', timeEntryId),
+    restart: (taskId) => ipcRenderer.invoke('timeEntries:restart', taskId),
   },
 
   timesheet: {
-    get: payload => ipcRenderer.invoke('timesheet:get', payload),
-    export: payload => ipcRenderer.invoke('timesheet:export', payload),
+    get: (payload) => ipcRenderer.invoke('timesheet:get', payload),
+    export: (payload) => ipcRenderer.invoke('timesheet:export', payload),
   },
 
   settings: {
-    get: payload => ipcRenderer.invoke('settings:get', payload),
-    set: payload => ipcRenderer.invoke('settings:set', payload),
+    get: (payload) => ipcRenderer.invoke('settings:get', payload),
+    set: (payload) => ipcRenderer.invoke('settings:set', payload),
   },
 })
