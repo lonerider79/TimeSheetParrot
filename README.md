@@ -1,4 +1,4 @@
-# Timesheet Parrot 0.1.1
+# Timesheet Parrot 0.1.2
 
 GPLv3 local-first desktop timesheet application built with Electron, Vite, Tailwind CSS, SQLite, ExcelJS, Chart.js and Heroicons.
 
