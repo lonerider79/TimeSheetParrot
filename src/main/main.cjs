@@ -1,15 +1,7 @@
 // Electron main process.
 // This file owns application windows, the system tray, IPC handlers, locale
 // discovery, workspace selection, and the SQLite repository lifecycle.
-const {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  Menu,
-  nativeImage,
-  Tray,
-} = require('electron')
+const { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, Tray,shell } = require('electron')
 const fs = require('node:fs')
 const path = require('node:path')
 
@@ -19,9 +11,7 @@ const {
   importWorkspaceDatabase,
   openExistingDatabase,
 } = require('./db.cjs')
-const {
-  createTimeEntriesRepository,
-} = require('./repositories/timeEntriesRepository.cjs')
+const { createTimeEntriesRepository } = require('./repositories/timeEntriesRepository.cjs')
 const { exportTimesheet } = require('./export.cjs')
 const { autoUpdater } = require('electron-updater')
 
@@ -56,7 +46,7 @@ function isAutoUpdateSupported() {
 }
 
 function sendUpdaterStatus(status) {
-  BrowserWindow.getAllWindows().forEach(browserWindow => {
+  BrowserWindow.getAllWindows().forEach((browserWindow) => {
     if (!browserWindow.isDestroyed()) {
       browserWindow.webContents.send('updater:status', status)
     }
@@ -75,21 +65,21 @@ function setupAutoUpdater() {
     sendUpdaterStatus({ state: 'checking' })
   })
 
-  autoUpdater.on('update-available', info => {
+  autoUpdater.on('update-available', (info) => {
     sendUpdaterStatus({
       state: 'available',
       version: info.version,
     })
   })
 
-  autoUpdater.on('download-progress', progress => {
+  autoUpdater.on('download-progress', (progress) => {
     sendUpdaterStatus({
       state: 'downloading',
       percent: Math.round(progress.percent),
     })
   })
 
-  autoUpdater.on('update-downloaded', info => {
+  autoUpdater.on('update-downloaded', (info) => {
     sendUpdaterStatus({
       state: 'downloaded',
       version: info.version,
@@ -101,7 +91,7 @@ function setupAutoUpdater() {
     sendUpdaterStatus({ state: 'latest' })
   })
 
-  autoUpdater.on('error', error => {
+  autoUpdater.on('error', (error) => {
     updateCheckInProgress = false
     console.error('Automatic update check failed:', error)
     sendUpdaterStatus({ state: 'error' })
@@ -150,7 +140,7 @@ function scheduleAutomaticUpdateCheck() {
   }
 
   setTimeout(() => {
-    checkForUpdates().catch(error => {
+    checkForUpdates().catch((error) => {
       console.error('Automatic update check failed:', error)
     })
   }, 5000)
@@ -246,9 +236,7 @@ function loadRenderer(browserWindow, hash = '') {
     return browserWindow.loadURL(`${rendererUrl}${hash}`)
   }
 
-  const options = hash
-    ? { hash: hash.replace(/^#/, '') }
-    : undefined
+  const options = hash ? { hash: hash.replace(/^#/, '') } : undefined
 
   return browserWindow.loadFile(rendererFile, options)
 }
@@ -309,9 +297,7 @@ function createWorkspaceWindow() {
 
   workspaceWindow.on('closed', () => {
     workspaceWindow = null
-    if(database ===null) 
-      app.quit() // If the workspace window is closed without any selection, exit the application.
-    
+    if (database === null) app.quit() // If the workspace window is closed without any selection, exit the application.
   })
 }
 
@@ -329,7 +315,14 @@ function createMainWindow() {
       title: translate('app.name'),
     }),
   )
-
+  // Intercept requests to open new windows and open them in the system browser instead
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http:') || url.startsWith('https:')) {
+      shell.openExternal(url); // Opens in the default system browser
+      return { action: 'deny' }; // Prevents Electron from opening a new internal window
+    }
+    return { action: 'allow' };
+  });
   removeWindowMenu(mainWindow)
   loadRenderer(mainWindow)
 
@@ -337,7 +330,7 @@ function createMainWindow() {
     mainWindow.show()
   })
 
-  mainWindow.on('close', event => {
+  mainWindow.on('close', (event) => {
     if (!app.isQuitting && repository?.getSetting('minimizeToTray', true)) {
       event.preventDefault()
       mainWindow.hide()
@@ -423,9 +416,7 @@ function recreateTray() {
   }
 
   if (timerWindow && !timerWindow.isDestroyed()) {
-    timerWindow.setTitle(
-      `${translate('app.name')} - ${translate('floating.timer')}`,
-    )
+    timerWindow.setTitle(`${translate('app.name')} - ${translate('floating.timer')}`)
   }
 
   if (workspaceWindow && !workspaceWindow.isDestroyed()) {
@@ -465,11 +456,11 @@ function setupIpc() {
     return getLocale(localeCode)
   })
 
-  ipcMain.handle('window:hide', event => {
+  ipcMain.handle('window:hide', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.hide()
   })
 
-  ipcMain.handle('window:minimize', event => {
+  ipcMain.handle('window:minimize', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.minimize()
   })
 
@@ -538,21 +529,14 @@ function setupIpc() {
 
   ipcMain.handle('timer:running', () => repository.getRunning())
   ipcMain.handle('timer:start', (_, payload) => {
-    return repository.startTimer(
-      Number(payload.task_id),
-      new Date().toISOString(),
-    )
+    return repository.startTimer(Number(payload.task_id), new Date().toISOString())
   })
 
   ipcMain.handle('timer:stop', (_, payload) => {
     const timeEntryId = payload.time_entry_id ?? payload.timeEntryId
     const durationSeconds = Number(payload.duration_seconds ?? payload.durationSeconds ?? 0)
 
-    return repository.stopTimer(
-      Number(timeEntryId),
-      new Date().toISOString(),
-      durationSeconds,
-    )
+    return repository.stopTimer(Number(timeEntryId), new Date().toISOString(), durationSeconds)
   })
 
   ipcMain.handle('timeEntries:listRecent', (_, limit) => {
@@ -568,10 +552,7 @@ function setupIpc() {
   })
 
   ipcMain.handle('timeEntries:restart', (_, taskId) => {
-    return repository.startTimer(
-      Number(taskId),
-      new Date().toISOString(),
-    )
+    return repository.startTimer(Number(taskId), new Date().toISOString())
   })
 
   ipcMain.handle('timesheet:get', (_, payload) => {
@@ -615,12 +596,7 @@ function setupIpc() {
       return { canceled: true }
     }
 
-    return exportTimesheet(
-      result.filePath,
-      payload.rows,
-      payload.rangeLabel,
-      payload.labels,
-    )
+    return exportTimesheet(result.filePath, payload.rows, payload.rangeLabel, payload.labels)
   })
 }
 
@@ -656,13 +632,9 @@ function importWorkspace(sourcePath) {
   closeDatabase()
 
   try {
-    const result = importWorkspaceDatabase(
-      app.getPath('userData'),
-      sourcePath,
-      progress => {
-        workspaceWindow?.webContents.send('workspace:progress', progress)
-      },
-    )
+    const result = importWorkspaceDatabase(app.getPath('userData'), sourcePath, (progress) => {
+      workspaceWindow?.webContents.send('workspace:progress', progress)
+    })
 
     if (!result.success) {
       initializeWorkspace(false)
@@ -750,6 +722,6 @@ app.on('before-quit', () => {
   closeDatabase()
 })
 
-app.on('window-all-closed', event => {
+app.on('window-all-closed', (event) => {
   event.preventDefault()
 })

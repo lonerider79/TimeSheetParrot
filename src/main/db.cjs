@@ -186,9 +186,7 @@ function seedSettings(database) {
 }
 
 function seedTasks(database) {
-  const taskCount = database
-    .prepare('SELECT COUNT(*) AS count FROM tasks')
-    .get().count
+  const taskCount = database.prepare('SELECT COUNT(*) AS count FROM tasks').get().count
 
   if (taskCount > 0) {
     return
@@ -240,12 +238,14 @@ function validateWorkspaceDatabase(database) {
 
   for (const [tableName, requiredColumns] of Object.entries(REQUIRED_TABLES)) {
     const table = database
-      .prepare(`
+      .prepare(
+        `
         SELECT name
         FROM sqlite_master
         WHERE type = 'table'
           AND name = ?
-      `)
+      `,
+      )
       .get(tableName)
 
     if (!table) {
@@ -253,11 +253,9 @@ function validateWorkspaceDatabase(database) {
       continue
     }
 
-    const columns = database
-      .prepare(`PRAGMA table_info("${tableName}")`)
-      .all()
+    const columns = database.prepare(`PRAGMA table_info("${tableName}")`).all()
 
-    const columnNames = new Set(columns.map(column => column.name))
+    const columnNames = new Set(columns.map((column) => column.name))
 
     for (const columnName of requiredColumns) {
       if (!columnNames.has(columnName)) {
@@ -281,12 +279,14 @@ function validateWorkspaceDatabase(database) {
     }
 
     const invalidTimeEntries = database
-      .prepare(`
+      .prepare(
+        `
         SELECT COUNT(*) AS count
         FROM time_entries
         WHERE duration_seconds < 0
            OR started_at IS NULL
-      `)
+      `,
+      )
       .get().count
 
     if (invalidTimeEntries > 0) {
@@ -294,12 +294,14 @@ function validateWorkspaceDatabase(database) {
     }
 
     const invalidClients = database
-      .prepare(`
+      .prepare(
+        `
         SELECT COUNT(*) AS count
         FROM clients
         WHERE default_rate < 0
            OR default_rate IS NULL
-      `)
+      `,
+      )
       .get().count
 
     if (invalidClients > 0) {
@@ -307,12 +309,14 @@ function validateWorkspaceDatabase(database) {
     }
 
     const invalidProjects = database
-      .prepare(`
+      .prepare(
+        `
         SELECT COUNT(*) AS count
         FROM projects
         WHERE default_rate < 0
            OR default_rate IS NULL
-      `)
+      `,
+      )
       .get().count
 
     if (invalidProjects > 0) {
@@ -461,10 +465,7 @@ function importWorkspaceDatabase(userDataPath, sourcePath, progressCallback) {
         messageKey: 'workspace.progressEntries',
       })
 
-      copyTable(sourceDatabase, destinationDatabase, 'settings', [
-        'key',
-        'value',
-      ])
+      copyTable(sourceDatabase, destinationDatabase, 'settings', ['key', 'value'])
 
       progressCallback({
         percent: 95,
@@ -497,10 +498,8 @@ function importWorkspaceDatabase(userDataPath, sourcePath, progressCallback) {
 }
 
 function copyTable(sourceDatabase, destinationDatabase, tableName, columns) {
-  const quotedColumns = columns.map(column => `"${column}"`).join(', ')
-  const rows = sourceDatabase
-    .prepare(`SELECT ${quotedColumns} FROM "${tableName}"`)
-    .all()
+  const quotedColumns = columns.map((column) => `"${column}"`).join(', ')
+  const rows = sourceDatabase.prepare(`SELECT ${quotedColumns} FROM "${tableName}"`).all()
 
   if (rows.length === 0) {
     return
@@ -514,7 +513,7 @@ function copyTable(sourceDatabase, destinationDatabase, tableName, columns) {
 
   destinationDatabase.transaction(() => {
     for (const row of rows) {
-      insert.run(...columns.map(column => row[column]))
+      insert.run(...columns.map((column) => row[column]))
     }
   })()
 }

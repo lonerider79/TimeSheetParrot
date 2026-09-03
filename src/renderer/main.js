@@ -94,7 +94,7 @@ function attachUpdaterStatusListener() {
     removeUpdaterStatusListener()
   }
 
-  removeUpdaterStatusListener = api.updater.onStatus(status => {
+  removeUpdaterStatusListener = api.updater.onStatus((status) => {
     const statusElement = document.querySelector('#update-status')
     const installButton = document.querySelector('#install-update-btn')
 
@@ -142,20 +142,20 @@ async function setLocale(nextLocale) {
 }
 
 function applyTranslations(root = document) {
-  root.querySelectorAll('[data-i18n]').forEach(element => {
+  root.querySelectorAll('[data-i18n]').forEach((element) => {
     //element.textContent = t(element.dataset.i18n)
-    element.innerHTML = t(element.dataset.i18n); //easier to format
+    element.innerHTML = t(element.dataset.i18n) //easier to format
   })
 
-  root.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+  root.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
     element.placeholder = t(element.dataset.i18nPlaceholder)
   })
 
-  root.querySelectorAll('[data-i18n-title]').forEach(element => {
+  root.querySelectorAll('[data-i18n-title]').forEach((element) => {
     element.title = t(element.dataset.i18nTitle)
   })
 
-  root.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+  root.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
     element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel))
   })
 }
@@ -199,9 +199,7 @@ function formatDuration(totalSeconds) {
   const remainder = seconds % 60
 
   if (timeDisplayFormat === 'hms') {
-    return [hours, minutes, remainder]
-      .map(value => String(value).padStart(2, '0'))
-      .join(':')
+    return [hours, minutes, remainder].map((value) => String(value).padStart(2, '0')).join(':')
   }
 
   return `${(seconds / 3600).toFixed(2)}h`
@@ -213,9 +211,7 @@ function formatClock(totalSeconds) {
   const minutes = Math.floor((seconds % 3600) / 60)
   const remainder = seconds % 60
 
-  return [hours, minutes, remainder]
-    .map(value => String(value).padStart(2, '0'))
-    .join(':')
+  return [hours, minutes, remainder].map((value) => String(value).padStart(2, '0')).join(':')
 }
 
 function formatDateTime(isoValue) {
@@ -335,9 +331,7 @@ function calculateDailySeconds(entries, rangeStart, rangeEnd) {
     }
 
     const entryStart = new Date(entry.started_at)
-    const entryEnd = entry.ended_at
-      ? new Date(entry.ended_at)
-      : new Date()
+    const entryEnd = entry.ended_at ? new Date(entry.ended_at) : new Date()
 
     const clippedStart = entryStart < rangeStart ? rangeStart : entryStart
     const clippedEnd = entryEnd > rangeEnd ? rangeEnd : entryEnd
@@ -403,15 +397,11 @@ function createWeeklyRows(rangeStart, rangeEnd, daily, groups) {
     weekEnd.setHours(23, 59, 59, 999)
 
     const groupRows = Array.from(groups.values())
-      .filter(group => {
+      .filter((group) => {
         const firstDay = weekStart < rangeStart ? rangeStart : weekStart
         const lastDay = weekEnd > rangeEnd ? rangeEnd : weekEnd
 
-        for (
-          const date = new Date(firstDay);
-          date <= lastDay;
-          date.setDate(date.getDate() + 1)
-        ) {
+        for (const date = new Date(firstDay); date <= lastDay; date.setDate(date.getDate() + 1)) {
           const key = date.toISOString().slice(0, 10)
           const seconds = daily.get(key)?.get(group.id) || 0
 
@@ -422,7 +412,7 @@ function createWeeklyRows(rangeStart, rangeEnd, daily, groups) {
 
         return false
       })
-      .map(group => ({
+      .map((group) => ({
         ...group,
         weekStart,
         weekEnd,
@@ -482,7 +472,7 @@ function populateCurrencySelect(select, selectedCode = 'USD', includeDefault = f
   }
 
   options.push(
-    ...currencies.map(currency => ({
+    ...currencies.map((currency) => ({
       value: currency.currency_code,
       label: `${currency.currency_code} - ${currency.currency_symbol} - ${currency.currency_name}`,
     })),
@@ -494,7 +484,7 @@ function populateCurrencySelect(select, selectedCode = 'USD', includeDefault = f
 function populateTaskSelect(select, selectedTaskId) {
   populateSelect(
     select,
-    tasks.map(task => ({
+    tasks.map((task) => ({
       value: task.task_id,
       label: task.task_name,
     })),
@@ -520,10 +510,7 @@ async function stopRunningTimer() {
   }
 
   const startedAt = new Date(runningEntry.started_at).getTime()
-  const durationSeconds = Math.max(
-    0,
-    Math.round((Date.now() - startedAt) / 1000),
-  )
+  const durationSeconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000))
 
   const stoppedEntry = await api.timer.stop({
     time_entry_id: Number(runningEntry.time_entry_id),
@@ -613,9 +600,7 @@ function renderDashboardTable(entries, range) {
 
     for (let index = 0; index < 7; index += 1) {
       const day = new Date(2024, 0, 1 + index)
-      headerRow.appendChild(
-        createElement('th', 'p-3 week-cell', getDayName(day)),
-      )
+      headerRow.appendChild(createElement('th', 'p-3 week-cell', getDayName(day)))
     }
 
     headerRow.appendChild(createElement('th', 'p-3 week-cell', t('common.total')))
@@ -624,11 +609,7 @@ function renderDashboardTable(entries, range) {
   head.appendChild(headerRow)
 
   const filteredEntries = entries.filter(entryMatchesFilters)
-  const calculated = calculateDailySeconds(
-    filteredEntries,
-    range.start,
-    range.end,
-  )
+  const calculated = calculateDailySeconds(filteredEntries, range.start, range.end)
 
   const rows = []
 
@@ -647,12 +628,7 @@ function renderDashboardTable(entries, range) {
       rows.push({ name: group.name, seconds })
     }
   } else {
-    const weeklyRows = createWeeklyRows(
-      range.start,
-      range.end,
-      calculated.daily,
-      calculated.groups,
-    )
+    const weeklyRows = createWeeklyRows(range.start, range.end, calculated.daily, calculated.groups)
 
     for (const group of weeklyRows) {
       const row = document.createElement('tr')
@@ -676,7 +652,9 @@ function renderDashboardTable(entries, range) {
         const seconds = calculated.daily.get(key)?.get(group.id) || 0
         total += seconds
 
-        row.appendChild(createElement('td', 'p-3', seconds ? formatDuration(seconds) : t('common.emptyValue')))
+        row.appendChild(
+          createElement('td', 'p-3', seconds ? formatDuration(seconds) : t('common.emptyValue')),
+        )
       }
 
       row.appendChild(createElement('td', 'p-3 font-bold', formatDuration(total)))
@@ -731,8 +709,8 @@ function renderChart(entries, range) {
     range.end,
   )
 
-  const labels = Array.from(calculated.groups.values()).map(group => group.name)
-  const data = Array.from(calculated.groups.values()).map(group => group.seconds / 3600)
+  const labels = Array.from(calculated.groups.values()).map((group) => group.name)
+  const data = Array.from(calculated.groups.values()).map((group) => group.seconds / 3600)
 
   chart = new Chart(canvas, {
     type: 'doughnut',
@@ -765,21 +743,19 @@ async function exportDashboardTimesheet() {
     endIso: range.end.toISOString(),
   })
 
-  const rows = entries
-    .filter(entryMatchesFilters)
-    .map(entry => ({
-      date: new Intl.DateTimeFormat(locale).format(new Date(entry.started_at)),
-      day: getDayName(new Date(entry.started_at), false),
-      task: entry.task_name,
-      client: entry.client_name || '',
-      project: entry.project_name || '',
-      billable: Boolean(entry.billable),
-      currency: entry.effective_currency || '',
-      currencySymbol: entry.effective_currency_symbol || '',
-      rate: Number(entry.effective_rate || 0),
-      seconds: Number(entry.duration_seconds || 0),
-      note: entry.note || '',
-    }))
+  const rows = entries.filter(entryMatchesFilters).map((entry) => ({
+    date: new Intl.DateTimeFormat(locale).format(new Date(entry.started_at)),
+    day: getDayName(new Date(entry.started_at), false),
+    task: entry.task_name,
+    client: entry.client_name || '',
+    project: entry.project_name || '',
+    billable: Boolean(entry.billable),
+    currency: entry.effective_currency || '',
+    currencySymbol: entry.effective_currency_symbol || '',
+    rate: Number(entry.effective_rate || 0),
+    seconds: Number(entry.duration_seconds || 0),
+    note: entry.note || '',
+  }))
 
   const labels = {
     appName: t('app.name'),
@@ -864,23 +840,31 @@ async function renderDashboard() {
   const clientFilter = document.querySelector('#client-filter')
   const projectFilter = document.querySelector('#project-filter')
 
-  populateSelect(periodSelect, [
-    { value: 'day', label: t('common.day') },
-    { value: 'month', label: t('common.month') },
-    { value: 'year', label: t('common.year') },
-  ], dashboardPeriod)
+  populateSelect(
+    periodSelect,
+    [
+      { value: 'day', label: t('common.day') },
+      { value: 'month', label: t('common.month') },
+      { value: 'year', label: t('common.year') },
+    ],
+    dashboardPeriod,
+  )
 
-  populateSelect(groupSelect, [
-    { value: 'client', label: t('common.client') },
-    { value: 'project', label: t('common.project') },
-    { value: 'task', label: t('common.task') },
-  ], dashboardGroup)
+  populateSelect(
+    groupSelect,
+    [
+      { value: 'client', label: t('common.client') },
+      { value: 'project', label: t('common.project') },
+      { value: 'task', label: t('common.task') },
+    ],
+    dashboardGroup,
+  )
 
   populateSelect(
     clientFilter,
     [
       { value: '', label: t('common.allClients') },
-      ...clients.map(client => ({
+      ...clients.map((client) => ({
         value: client.client_id,
         label: client.client_name,
       })),
@@ -892,7 +876,7 @@ async function renderDashboard() {
     projectFilter,
     [
       { value: '', label: t('common.allProjects') },
-      ...projects.map(project => ({
+      ...projects.map((project) => ({
         value: project.project_id,
         label: project.project_name,
       })),
@@ -976,7 +960,10 @@ function renderTimerScreen() {
   applyTranslations(view)
   hydrateIcons(view)
 
-  populateTaskSelect(document.querySelector('#timer-select'), runningEntry?.task_id || tasks[0]?.task_id)
+  populateTaskSelect(
+    document.querySelector('#timer-select'),
+    runningEntry?.task_id || tasks[0]?.task_id,
+  )
   updateTimerScreen()
 
   document.querySelector('#timer-start').addEventListener('click', async () => {
@@ -1070,13 +1057,17 @@ async function renderEntryHistory() {
   for (const entry of entries) {
     const row = createElement('tr', 'entry-row border-b border-[var(--border)]')
 
-    row.appendChild(createElement('td', 'p-4 muted whitespace-nowrap', formatDateTime(entry.created_at)))
+    row.appendChild(
+      createElement('td', 'p-4 muted whitespace-nowrap', formatDateTime(entry.created_at)),
+    )
     row.appendChild(createElement('td', 'p-4 font-medium', entry.task_name))
     row.appendChild(createElement('td', 'p-4', entry.client_name || t('common.noClient')))
     row.appendChild(createElement('td', 'p-4', entry.project_name || t('common.noProject')))
     row.appendChild(createElement('td', 'p-4 whitespace-nowrap', formatDateTime(entry.started_at)))
     row.appendChild(createElement('td', 'p-4 whitespace-nowrap', formatDateTime(entry.ended_at)))
-    row.appendChild(createElement('td', 'p-4 font-semibold', formatDuration(entry.duration_seconds)))
+    row.appendChild(
+      createElement('td', 'p-4 font-semibold', formatDuration(entry.duration_seconds)),
+    )
 
     const actions = createElement('td', 'p-4')
     const actionGroup = createElement('div', 'flex items-center gap-1')
@@ -1085,27 +1076,17 @@ async function renderEntryHistory() {
       const deletedBadge = createElement('span', 'deleted-pill', t('timer.deleted'))
       actionGroup.appendChild(deletedBadge)
     } else {
-      appendIconButton(
-        actionGroup,
-        'play',
-        t('timer.restart'),
-        async () => {
-          if (runningEntry) {
-            return
-          }
+      appendIconButton(actionGroup, 'play', t('timer.restart'), async () => {
+        if (runningEntry) {
+          return
+        }
 
-          runningEntry = await api.timeEntries.restart(entry.task_id)
-          updateTimerScreen()
-          renderEntryHistory()
-        },
-      )
+        runningEntry = await api.timeEntries.restart(entry.task_id)
+        updateTimerScreen()
+        renderEntryHistory()
+      })
 
-      appendIconButton(
-        actionGroup,
-        'pencil',
-        t('timer.edit'),
-        () => openEntryModal(entry),
-      )
+      appendIconButton(actionGroup, 'pencil', t('timer.edit'), () => openEntryModal(entry))
 
       appendIconButton(
         actionGroup,
@@ -1189,7 +1170,7 @@ function openEntryModal(entry) {
   document.querySelector('#entry-end').oninput = updateEntryDurationPreview
   document.querySelector('#entry-modal-close').onclick = closeEntryModal
   document.querySelector('#entry-cancel').onclick = closeEntryModal
-  document.querySelector('#entry-form').onsubmit = async event => {
+  document.querySelector('#entry-form').onsubmit = async (event) => {
     event.preventDefault()
 
     const startedAt = fromDateTimeLocal(document.querySelector('#entry-start').value)
@@ -1227,7 +1208,7 @@ async function renderSettings() {
   const content = view.querySelector('#settings-content')
 
   async function selectTab(tab) {
-    tabButtons.forEach(button => {
+    tabButtons.forEach((button) => {
       button.classList.toggle('active', button.dataset.settingsTab === tab)
     })
 
@@ -1240,7 +1221,7 @@ async function renderSettings() {
     }
   }
 
-  tabButtons.forEach(button => {
+  tabButtons.forEach((button) => {
     button.addEventListener('click', () => selectTab(button.dataset.settingsTab))
   })
 
@@ -1280,20 +1261,15 @@ function renderTaskSettings(container) {
 
     const actions = createElement('div', 'flex items-center gap-1')
     appendIconButton(actions, 'pencil', t('settings.edit'), () => openTaskModal(task.task_id))
-    appendIconButton(
-      actions,
-      'archive-box',
-      t('settings.archive'),
-      async () => {
-        if (!window.confirm(t('settings.archiveTaskConfirm'))) {
-          return
-        }
+    appendIconButton(actions, 'archive-box', t('settings.archive'), async () => {
+      if (!window.confirm(t('settings.archiveTaskConfirm'))) {
+        return
+      }
 
-        await api.tasks.archive(task.task_id)
-        await loadCommonData()
-        renderTaskSettings(container)
-      },
-    )
+      await api.tasks.archive(task.task_id)
+      await loadCommonData()
+      renderTaskSettings(container)
+    })
 
     row.append(info, actions)
     list.appendChild(row)
@@ -1342,21 +1318,18 @@ function buildClientCard() {
     )
 
     const actions = createElement('div', 'flex items-center gap-1')
-    appendIconButton(actions, 'pencil', t('settings.edit'), () => openEntityModal('client', client.client_id))
-    appendIconButton(
-      actions,
-      'archive-box',
-      t('settings.archive'),
-      async () => {
-        if (!window.confirm(t('settings.archiveClientConfirm'))) {
-          return
-        }
-
-        await api.clients.archive(client.client_id)
-        await loadCommonData()
-        renderClientProjectSettings(document.querySelector('#settings-content'))
-      },
+    appendIconButton(actions, 'pencil', t('settings.edit'), () =>
+      openEntityModal('client', client.client_id),
     )
+    appendIconButton(actions, 'archive-box', t('settings.archive'), async () => {
+      if (!window.confirm(t('settings.archiveClientConfirm'))) {
+        return
+      }
+
+      await api.clients.archive(client.client_id)
+      await loadCommonData()
+      renderClientProjectSettings(document.querySelector('#settings-content'))
+    })
 
     row.append(info, actions)
     list.appendChild(row)
@@ -1397,21 +1370,18 @@ function buildProjectCard() {
     )
 
     const actions = createElement('div', 'flex items-center gap-1')
-    appendIconButton(actions, 'pencil', t('settings.edit'), () => openEntityModal('project', project.project_id))
-    appendIconButton(
-      actions,
-      'archive-box',
-      t('settings.archive'),
-      async () => {
-        if (!window.confirm(t('settings.archiveProjectConfirm'))) {
-          return
-        }
-
-        await api.projects.archive(project.project_id)
-        await loadCommonData()
-        renderClientProjectSettings(document.querySelector('#settings-content'))
-      },
+    appendIconButton(actions, 'pencil', t('settings.edit'), () =>
+      openEntityModal('project', project.project_id),
     )
+    appendIconButton(actions, 'archive-box', t('settings.archive'), async () => {
+      if (!window.confirm(t('settings.archiveProjectConfirm'))) {
+        return
+      }
+
+      await api.projects.archive(project.project_id)
+      await loadCommonData()
+      renderClientProjectSettings(document.querySelector('#settings-content'))
+    })
 
     row.append(info, actions)
     list.appendChild(row)
@@ -1440,7 +1410,7 @@ async function renderPreferenceSettings(container) {
   const languageSelect = createElement('select', 'input mt-3 max-w-xs')
   populateSelect(
     languageSelect,
-    availableLocales.map(item => ({
+    availableLocales.map((item) => ({
       value: item.code,
       label: `${item.nativeName} (${item.code.toUpperCase()})`,
     })),
@@ -1453,7 +1423,10 @@ async function renderPreferenceSettings(container) {
   languageSection.appendChild(languageSelect)
   card.appendChild(languageSection)
 
-  const themeSection = createElement('div', 'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4')
+  const themeSection = createElement(
+    'div',
+    'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4',
+  )
   const themeText = createElement('div')
   themeText.append(
     createElement('div', 'font-bold', t('settings.dayNight')),
@@ -1476,10 +1449,14 @@ async function renderPreferenceSettings(container) {
   )
 
   const timeSelect = createElement('select', 'input mt-3 max-w-xs')
-  populateSelect(timeSelect, [
-    { value: 'decimal', label: t('settings.decimalHours') },
-    { value: 'hms', label: t('settings.hoursMinutesSeconds') },
-  ], timeDisplayFormat)
+  populateSelect(
+    timeSelect,
+    [
+      { value: 'decimal', label: t('settings.decimalHours') },
+      { value: 'hms', label: t('settings.hoursMinutesSeconds') },
+    ],
+    timeDisplayFormat,
+  )
   timeSelect.onchange = async () => {
     timeDisplayFormat = timeSelect.value
     await api.settings.set({
@@ -1511,7 +1488,10 @@ async function renderPreferenceSettings(container) {
 }
 
 async function buildBooleanPreference(titleKey, hintKey, settingKey, fallback) {
-  const section = createElement('div', 'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4')
+  const section = createElement(
+    'div',
+    'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4',
+  )
   const text = createElement('div')
   text.append(
     createElement('div', 'font-bold', t(titleKey)),
@@ -1521,10 +1501,12 @@ async function buildBooleanPreference(titleKey, hintKey, settingKey, fallback) {
   const checkbox = document.createElement('input')
   checkbox.type = 'checkbox'
   checkbox.className = 'w-5 h-5'
-  checkbox.checked = Boolean(await api.settings.get({
-    key: settingKey,
-    fallback,
-  }))
+  checkbox.checked = Boolean(
+    await api.settings.get({
+      key: settingKey,
+      fallback,
+    }),
+  )
 
   checkbox.onchange = async () => {
     await api.settings.set({
@@ -1543,9 +1525,7 @@ function openTaskModal(taskId = null) {
   modal.classList.remove('hidden')
   hydrateIcons(modal)
 
-  const task = taskId
-    ? tasks.find(item => Number(item.task_id) === Number(taskId))
-    : null
+  const task = taskId ? tasks.find((item) => Number(item.task_id) === Number(taskId)) : null
 
   document.querySelector('#task-id').value = task?.task_id || ''
   document.querySelector('#task-modal-title').textContent = task
@@ -1558,7 +1538,7 @@ function openTaskModal(taskId = null) {
     document.querySelector('#task-client'),
     [
       { value: '', label: t('common.noClient') },
-      ...clients.map(client => ({
+      ...clients.map((client) => ({
         value: client.client_id,
         label: client.client_name,
       })),
@@ -1569,23 +1549,19 @@ function openTaskModal(taskId = null) {
     document.querySelector('#task-project'),
     [
       { value: '', label: t('common.noProject') },
-      ...projects.map(project => ({
+      ...projects.map((project) => ({
         value: project.project_id,
         label: project.project_name,
       })),
     ],
     task?.project_id || '',
   )
-  populateCurrencySelect(
-    document.querySelector('#task-currency'),
-    task?.currency_code || '',
-    true,
-  )
+  populateCurrencySelect(document.querySelector('#task-currency'), task?.currency_code || '', true)
   document.querySelector('#task-rate').value = task?.rate ?? ''
 
   document.querySelector('#task-modal-close').onclick = closeTaskModal
   document.querySelector('#task-cancel').onclick = closeTaskModal
-  document.querySelector('#task-form').onsubmit = async event => {
+  document.querySelector('#task-form').onsubmit = async (event) => {
     event.preventDefault()
 
     const payload = {
@@ -1633,9 +1609,10 @@ function openEntityModal(type, entityId = null) {
   modal.classList.remove('hidden')
   hydrateIcons(modal)
 
-  const data = type === 'client'
-    ? clients.find(item => Number(item.client_id) === Number(entityId))
-    : projects.find(item => Number(item.project_id) === Number(entityId))
+  const data =
+    type === 'client'
+      ? clients.find((item) => Number(item.client_id) === Number(entityId))
+      : projects.find((item) => Number(item.project_id) === Number(entityId))
 
   document.querySelector('#entity-id').value = entityId || ''
   document.querySelector('#entity-type').value = type
@@ -1645,14 +1622,10 @@ function openEntityModal(type, entityId = null) {
   document.querySelector('#entity-name-label').textContent = t(
     type === 'client' ? 'settings.clientName' : 'settings.projectName',
   )
-  document.querySelector('#entity-name').value = type === 'client'
-    ? data?.client_name || ''
-    : data?.project_name || ''
+  document.querySelector('#entity-name').value =
+    type === 'client' ? data?.client_name || '' : data?.project_name || ''
   document.querySelector('#entity-rate').value = data?.default_rate ?? 0
-  populateCurrencySelect(
-    document.querySelector('#entity-currency'),
-    data?.currency_code || 'USD',
-  )
+  populateCurrencySelect(document.querySelector('#entity-currency'), data?.currency_code || 'USD')
 
   const clientField = document.querySelector('#project-client-field')
   clientField.replaceChildren()
@@ -1668,7 +1641,7 @@ function openEntityModal(type, entityId = null) {
       select,
       [
         { value: '', label: t('common.noClient') },
-        ...clients.map(client => ({
+        ...clients.map((client) => ({
           value: client.client_id,
           label: client.client_name,
         })),
@@ -1681,7 +1654,7 @@ function openEntityModal(type, entityId = null) {
 
   document.querySelector('#entity-modal-close').onclick = closeEntityModal
   document.querySelector('#entity-cancel').onclick = closeEntityModal
-  document.querySelector('#entity-form').onsubmit = async event => {
+  document.querySelector('#entity-form').onsubmit = async (event) => {
     event.preventDefault()
 
     const name = document.querySelector('#entity-name').value
@@ -1838,14 +1811,14 @@ function renderWorkspace() {
     progress.classList.remove('hidden')
   }
 
-  const showFailure = messageKey => {
+  const showFailure = (messageKey) => {
     progress.classList.add('hidden')
     options.classList.add('hidden')
     failure.classList.remove('hidden')
     document.querySelector('#workspace-failure-message').textContent = t(messageKey)
   }
 
-  api.workspace.onProgress(progressData => {
+  api.workspace.onProgress((progressData) => {
     progressMessage.textContent = t(progressData.messageKey)
     progressBar.style.width = `${progressData.percent}%`
     progressPercent.textContent = `${progressData.percent}%`
@@ -1887,7 +1860,7 @@ async function renderApplicationShell() {
   applyTranslations(appElement)
   hydrateIcons(appElement)
 
-  document.querySelectorAll('[data-route]').forEach(button => {
+  document.querySelectorAll('[data-route]').forEach((button) => {
     button.addEventListener('click', () => navigate(button.dataset.route))
   })
 
@@ -1905,7 +1878,7 @@ async function renderApplicationShell() {
 async function navigate(route) {
   currentRoute = route
 
-  document.querySelectorAll('[data-route]').forEach(button => {
+  document.querySelectorAll('[data-route]').forEach((button) => {
     button.classList.toggle('active', button.dataset.route === route)
   })
 
@@ -1951,6 +1924,6 @@ async function boot() {
   }, 850)
 }
 
-boot().catch(error => {
+boot().catch((error) => {
   console.error('Timesheet Parrot renderer failed to start:', error)
 })
