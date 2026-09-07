@@ -55,7 +55,7 @@ const icons = {
   window: windowIcon,
   loadSettings,
   myStory,
-  quit
+  quit,
 }
 
 export function icon(name, className = 'w-5 h-5') {

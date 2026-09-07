@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
     openExternal: (url) => ipcRenderer.invoke('window:openExternal', url),
     openTimer: () => ipcRenderer.invoke('window:openTimer'),
     closeTimer: () => ipcRenderer.invoke('window:closeTimer'),
-    Quit: () => ipcRenderer.invoke('window:quit')
+    Quit: () => ipcRenderer.invoke('window:quit'),
   },
 
   workspace: {

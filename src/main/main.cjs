@@ -315,7 +315,6 @@ function createWorkspaceWindow() {
     if (database === null) {
       // If the workspace window is closed without any DB selection, exit the application.
       closeApplication()
-      
     }
   })
 }
@@ -340,7 +339,7 @@ function createMainWindow() {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
-     if(!app.isPackaged) mainWindow.webContents.openDevTools(); //debug for development
+    if (!app.isPackaged) mainWindow.webContents.openDevTools() //debug for development
   })
 
   mainWindow.on('close', (event) => {
@@ -622,7 +621,7 @@ function setupIpc() {
 
 function closeApplication() {
   app.isQuitting = true
-  app.quit( )
+  app.quit()
 }
 function closeDatabase() {
   if (database) {
