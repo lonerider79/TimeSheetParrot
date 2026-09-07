@@ -11,12 +11,14 @@
   "nav.timer": "Timer",
   "nav.settings": "Settings",
   "nav.about": "About",
+  "nav.quit": "Quit",
   "nav.localFirst": "Local-first · SQLite",
   "nav.desktop": "Desktop · GPLv3",
   "page.dashboard": "Dashboard",
   "page.timer": "Task timer",
   "page.settings": "Settings",
   "page.about": "About",
+  "page.quit": "Quit",
   "common.allClients": "All clients",
   "common.allProjects": "All projects",
   "common.billable": "Billable",
@@ -214,5 +216,8 @@
   "update.latest": "You are using the latest version.",
   "update.error": "Unable to check for updates right now.",
   "update.unsupported": "Automatic updates are not available for this installation.",
-  "update.version": "Available version"
+  "update.version": "Available version",
+  "quit.confirmHead": "Confirm Quit?",
+  "quit.confirmText": "Timesheet Parrot will quit now. Please confirm",
+  "quit.confirmButton": "Quit Timesheet Parrot"
 }

@@ -28,8 +28,10 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
   window: {
     hide: () => ipcRenderer.invoke('window:hide'),
     minimize: () => ipcRenderer.invoke('window:minimize'),
+    openExternal: (url) => ipcRenderer.invoke('window:openExternal', url),
     openTimer: () => ipcRenderer.invoke('window:openTimer'),
     closeTimer: () => ipcRenderer.invoke('window:closeTimer'),
+    Quit: () => ipcRenderer.invoke('window:quit')
   },
 
   workspace: {

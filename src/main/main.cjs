@@ -273,6 +273,21 @@ function removeWindowMenu(browserWindow) {
   browserWindow.setMenu(null)
 }
 
+function openExternalUrl(urlToOpen) {
+  try {
+    const parsedUrl = new URL(urlToOpen)
+
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return { success: false }
+    }
+
+    shell.openExternal(parsedUrl.toString())
+    return { success: true }
+  } catch {
+    return { success: false }
+  }
+}
+
 function createWorkspaceWindow() {
   workspaceWindow = new BrowserWindow(
     baseWindowOptions({
@@ -297,7 +312,11 @@ function createWorkspaceWindow() {
 
   workspaceWindow.on('closed', () => {
     workspaceWindow = null
-    if (database === null) app.quit() // If the workspace window is closed without any selection, exit the application.
+    if (database === null) {
+      // If the workspace window is closed without any DB selection, exit the application.
+      closeApplication()
+      
+    }
   })
 }
 
@@ -315,19 +334,13 @@ function createMainWindow() {
       title: translate('app.name'),
     }),
   )
-  // Intercept requests to open new windows and open them in the system browser instead
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http:') || url.startsWith('https:')) {
-      shell.openExternal(url) // Opens in the default system browser
-      return { action: 'deny' } // Prevents Electron from opening a new internal window
-    }
-    return { action: 'allow' }
-  })
+
   removeWindowMenu(mainWindow)
   loadRenderer(mainWindow)
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+     if(!app.isPackaged) mainWindow.webContents.openDevTools(); //debug for development
   })
 
   mainWindow.on('close', (event) => {
@@ -392,8 +405,7 @@ function createTray() {
       {
         label: translate('tray.quit'),
         click: () => {
-          app.isQuitting = true
-          app.quit()
+          closeApplication()
         },
       },
     ]),
@@ -464,8 +476,16 @@ function setupIpc() {
     BrowserWindow.fromWebContents(event.sender)?.minimize()
   })
 
+  ipcMain.handle('window:quit', () => {
+    closeApplication()
+  })
+
   ipcMain.handle('window:closeTimer', () => {
     timerWindow?.close()
+  })
+
+  ipcMain.handle('window:openExternal', (_, urlToOpen) => {
+    return openExternalUrl(urlToOpen)
   })
 
   ipcMain.handle('window:openTimer', () => {
@@ -600,6 +620,10 @@ function setupIpc() {
   })
 }
 
+function closeApplication() {
+  app.isQuitting = true
+  app.quit( )
+}
 function closeDatabase() {
   if (database) {
     database.close()

@@ -17,6 +17,7 @@ import shellTemplate from './views/shell.html?raw'
 import splashTemplate from './views/splash.html?raw'
 import timerTemplate from './views/timer.html?raw'
 import workspaceTemplate from './views/workspace.html?raw'
+import quitTemplate from './views/quit.html?raw'
 
 const api = window.timesheetAPI
 const appElement = document.querySelector('#app')
@@ -1705,12 +1706,20 @@ function openEntityModal(type, entityId = null) {
 function closeEntityModal() {
   document.querySelector('#entity-modal')?.classList.add('hidden')
 }
-
+//render about page
 async function renderAbout() {
   const view = document.querySelector('#view')
   view.innerHTML = aboutTemplate
   applyTranslations(view)
   hydrateIcons(view)
+
+  view.querySelectorAll('a[target="_blank"]').forEach((link) => { // preload has a secondary http/s check to ensure we only open external links in the browser
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      api.window.openExternal(link.href)
+    })
+  })
+
 
   const info = await api.app.getInfo()
   document.querySelector('#about-version').textContent = `${t('about.version')} ${info.version}`
@@ -1730,6 +1739,18 @@ async function renderAbout() {
   })
 }
 
+//render quit confirmation
+async function renderQuit() {
+  const view = document.querySelector('#view')
+  view.innerHTML = quitTemplate
+  applyTranslations(view)
+  hydrateIcons(view)
+  const quitButton = document.querySelector('#quit-btn')
+  quitButton?.addEventListener('click', async () => {
+        await stopRunningTimer()
+        api.window.Quit()
+  })
+}
 function renderFloatingTimer() {
   appElement.innerHTML = floatingTimerTemplate
   applyTranslations(appElement)
@@ -1896,7 +1917,10 @@ async function navigate(route) {
     await renderSettings()
   } else if (route === 'about') {
     await renderAbout()
+  } else if (route === 'quit') {
+    await renderQuit()
   }
+
 }
 
 async function boot() {
