@@ -126,7 +126,8 @@ button {
 
 .btn-primary {
   background: #06b6d4;
-  color: #06202a;
+  /*color: #06202a;*/
+  color: var(--text)
   font-weight: 700;
 }
 
@@ -137,13 +138,15 @@ button {
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: #ef4444;
+ /* color: #ffffff;*/
+  color: var(--text);
   border: 1px solid rgba(239, 68, 68, 0.22);
 }
 .btn-warning {
   background: #efb344;
-  color: #06202a;
+  /* color: #06202a;*/
+  color: var(--text);
   border: 1px solid rgba(239, 68, 68, 0.22);
   font-weight: 700;
 }
