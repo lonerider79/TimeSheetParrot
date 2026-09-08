@@ -143,6 +143,6 @@ This project is licensed under the **GNU General Public License v3.0** — see t
 
 ## 🙏 Acknowledgments
 
-Built with love for solo developers who just want to track their time without the drama. No cloud. No subscriptions. No nonsense.
+Built with ❤️ for solo developers who just want to track their time without the drama. No cloud. No subscriptions. No nonsense.
 
-> *"Your data. Your machine. Your timesheet."*
+> *"Your work. Your data. Your timesheet."*
