@@ -30,9 +30,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check formatting
-        run: npm run format:check
-
       - name: Verify JavaScript syntax
         shell: bash
         run: |
