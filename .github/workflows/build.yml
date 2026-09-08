@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+#      - name: Check formatting
+#        run: npm run format:check
+
       - name: Verify JavaScript syntax
         shell: bash
         run: |
@@ -73,7 +76,7 @@ jobs:
   build:
     name: Build ${{ matrix.name }}
     needs: [quality, prepare-release]
-    # if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
