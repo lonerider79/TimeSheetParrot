@@ -164,7 +164,11 @@ button {
   background: var(--hover);
   color: var(--text);
 }
-
+/* for quit button red icon */
+.icon-danger {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(94%) saturate(2357%)
+    hue-rotate(337deg) brightness(101%) contrast(86%);
+}
 .nav-item {
   display: flex;
   align-items: center;

@@ -12,6 +12,7 @@ import { hydrateIcons, icon } from './icons.js'
 import aboutTemplate from './views/about.html?raw'
 import dashboardTemplate from './views/dashboard.html?raw'
 import floatingTimerTemplate from './views/floating-timer.html?raw'
+import settingsPreferencesTemplate from './views/settings-preferences.html?raw'
 import settingsTemplate from './views/settings.html?raw'
 import shellTemplate from './views/shell.html?raw'
 import splashTemplate from './views/splash.html?raw'
@@ -1217,6 +1218,8 @@ async function renderSettings() {
       renderTaskSettings(content)
     } else if (tab === 'clients') {
       renderClientProjectSettings(content)
+    }else if (tab === 'exportWorkspace') {
+      renderExportSettings(content)
     } else {
       await renderPreferenceSettings(content)
     }
@@ -1398,17 +1401,10 @@ function buildProjectCard() {
 }
 
 async function renderPreferenceSettings(container) {
-  container.replaceChildren()
+  container.innerHTML = settingsPreferencesTemplate
+  applyTranslations(container)
 
-  const card = createElement('div', 'card p-5 space-y-6')
-
-  const languageSection = createElement('div')
-  languageSection.append(
-    createElement('div', 'font-bold', t('settings.languages')),
-    createElement('div', 'muted text-sm mt-1', t('settings.languageHint')),
-  )
-
-  const languageSelect = createElement('select', 'input mt-3 max-w-xs')
+  const languageSelect = container.querySelector('#preference-language')
   populateSelect(
     languageSelect,
     availableLocales.map((item) => ({
@@ -1421,35 +1417,15 @@ async function renderPreferenceSettings(container) {
     await setLocale(languageSelect.value)
     await renderApplicationShell()
   })
-  languageSection.appendChild(languageSelect)
-  card.appendChild(languageSection)
 
-  const themeSection = createElement(
-    'div',
-    'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4',
-  )
-  const themeText = createElement('div')
-  themeText.append(
-    createElement('div', 'font-bold', t('settings.dayNight')),
-    createElement('div', 'muted text-sm', t('settings.dayNightHint')),
-  )
-
-  const themeButton = createElement('button', 'btn btn-secondary')
+  const themeButton = container.querySelector('#preference-theme-toggle')
   themeButton.innerHTML = `${icon(theme === 'dark' ? 'sun' : 'moon', 'w-5 h-5')}<span>${escapeHtml(theme === 'dark' ? t('settings.dayMode') : t('settings.nightMode'))}</span>`
   themeButton.onclick = async () => {
     await setTheme(theme === 'dark' ? 'light' : 'dark')
     await renderPreferenceSettings(container)
   }
-  themeSection.append(themeText, themeButton)
-  card.appendChild(themeSection)
 
-  const timeSection = createElement('div', 'border-t border-[var(--border)] pt-5')
-  timeSection.append(
-    createElement('div', 'font-bold', t('settings.timeFormat')),
-    createElement('div', 'muted text-sm mt-1', t('settings.timeFormatHint')),
-  )
-
-  const timeSelect = createElement('select', 'input mt-3 max-w-xs')
+  const timeSelect = container.querySelector('#preference-time-format')
   populateSelect(
     timeSelect,
     [
@@ -1466,61 +1442,54 @@ async function renderPreferenceSettings(container) {
     })
     await renderPreferenceSettings(container)
   }
-  timeSection.appendChild(timeSelect)
-  card.appendChild(timeSection)
 
-  const traySection = await buildBooleanPreference(
-    'settings.minimizeTray',
-    'settings.minimizeTrayHint',
-    'minimizeToTray',
-    true,
+  const [minimizeToTray, startWithWindows] = await Promise.all([
+    api.settings.get({ key: 'minimizeToTray', fallback: true }),
+    api.settings.get({ key: 'startWithWindows', fallback: false }),
+  ])
+
+  const booleanPreferences = [
+    ['#preference-minimize-to-tray', 'minimizeToTray', minimizeToTray],
+    ['#preference-start-with-windows', 'startWithWindows', startWithWindows],
+  ]
+
+  booleanPreferences.forEach(([selector, key, value]) => {
+    const checkbox = container.querySelector(selector)
+    checkbox.checked = Boolean(value)
+    checkbox.onchange = () => api.settings.set({ key, value: checkbox.checked })
+  })
+}
+
+async function exportWorkspace(){
+  const result = await api.settings.backupDatabase()
+  
+}
+function renderExportSettings(container) {//backup data, export workspace, 
+  container.replaceChildren()
+
+  const card = createElement('div', 'card p-5')
+  const header = createElement('div', 'flex items-center justify-between gap-3')
+  const titleGroup = createElement('div')
+  titleGroup.append(
+    createElement('div', 'font-bold', t('settings.exportHead')),
+    createElement('div', 'muted text-xs mt-1', t('settings.exportDescription')),
   )
-  card.appendChild(traySection)
 
-  const startupSection = await buildBooleanPreference(
-    'settings.startWindows',
-    'settings.startWindowsHint',
-    'startWithWindows',
-    false,
-  )
-  card.appendChild(startupSection)
+  const addButton = createElement('button', 'btn btn-primary')
+  addButton.innerHTML = `${icon('exportData', 'w-4 h-4')}<span>${escapeHtml(t('settings.exportButton'))}</span>`
+  addButton.addEventListener('click', async () => await exportWorkspace())
 
+  header.append(titleGroup, addButton)
+  card.appendChild(header)
+
+  const list = createElement('div', 'divide-y divide-[var(--border)] mt-4')
+
+ 
+
+
+  card.appendChild(list)
   container.appendChild(card)
 }
-
-async function buildBooleanPreference(titleKey, hintKey, settingKey, fallback) {
-  const section = createElement(
-    'div',
-    'border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4',
-  )
-  const text = createElement('div')
-  text.append(
-    createElement('div', 'font-bold', t(titleKey)),
-    createElement('div', 'muted text-sm', t(hintKey)),
-  )
-
-  const checkbox = document.createElement('input')
-  checkbox.type = 'checkbox'
-  checkbox.className = 'w-5 h-5'
-  checkbox.checked = Boolean(
-    await api.settings.get({
-      key: settingKey,
-      fallback,
-    }),
-  )
-
-  checkbox.onchange = async () => {
-    await api.settings.set({
-      key: settingKey,
-      value: checkbox.checked,
-    })
-  }
-
-  section.append(text, checkbox)
-
-  return section
-}
-
 function openTaskModal(taskId = null) {
   const modal = document.querySelector('#task-modal')
   modal.classList.remove('hidden')

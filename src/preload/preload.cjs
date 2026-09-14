@@ -95,5 +95,6 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
   settings: {
     get: (payload) => ipcRenderer.invoke('settings:get', payload),
     set: (payload) => ipcRenderer.invoke('settings:set', payload),
+    backupDatabase: () => ipcRenderer.invoke('settings:backupDatabase'),
   },
 })

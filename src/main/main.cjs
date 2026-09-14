@@ -599,6 +599,30 @@ function setupIpc() {
     return value
   })
 
+  ipcMain.handle('settings:backupDatabase', async () => {
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: translate('settings.backupTitle'),
+      filters: [
+        {
+          name: translate('settings.databaseFiles'),
+          extensions: ['sqlite', 'db', 'sqlite3'],
+        },
+      ],
+    })
+
+    if (result.canceled || !result.filePath ) {
+      return { success: false, reason: "Export canceled by user" }
+    }
+    const databasePath = getDatabasePath(app.getPath('userData'))
+    
+    if (fs.existsSync(databasePath)) {
+      fs.copyFileSync(databasePath, result.filePath)
+      return { success: true , reason: result.filePath }
+    }else{
+      return { success: false, reason: "No database found to export" }
+    }    
+  })
+
   ipcMain.handle('timesheet:export', async (_, payload) => {
     const result = await dialog.showSaveDialog(mainWindow, {
       title: translate('export.dialogTitle'),

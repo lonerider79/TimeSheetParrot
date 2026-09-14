@@ -27,6 +27,7 @@ import windowIcon from 'heroicons/24/outline/rectangle-group.svg?url'
 import loadSettings from 'heroicons/24/outline/arrow-up-tray.svg?url'
 import myStory from 'heroicons/24/outline/book-open.svg?url'
 import quit from 'heroicons/24/outline/arrow-right-on-rectangle.svg?url'
+import exportData from 'heroicons/24/outline/archive-box-arrow-down.svg?url'
 const icons = {
   'squares-2x2': squares2x2,
   clock,
@@ -56,6 +57,7 @@ const icons = {
   loadSettings,
   myStory,
   quit,
+  exportData
 }
 
 export function icon(name, className = 'w-5 h-5') {

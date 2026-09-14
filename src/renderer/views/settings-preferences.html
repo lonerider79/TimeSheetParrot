@@ -1,0 +1,37 @@
+<div class="card p-5 space-y-6">
+  <div>
+    <div class="font-bold" data-i18n="settings.languages"></div>
+    <div class="muted text-sm mt-1" data-i18n="settings.languageHint"></div>
+    <select id="preference-language" class="input mt-3 max-w-xs"></select>
+  </div>
+
+  <div class="border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4">
+    <div>
+      <div class="font-bold" data-i18n="settings.dayNight"></div>
+      <div class="muted text-sm" data-i18n="settings.dayNightHint"></div>
+    </div>
+    <button id="preference-theme-toggle" class="btn btn-secondary"></button>
+  </div>
+
+  <div class="border-t border-[var(--border)] pt-5">
+    <div class="font-bold" data-i18n="settings.timeFormat"></div>
+    <div class="muted text-sm mt-1" data-i18n="settings.timeFormatHint"></div>
+    <select id="preference-time-format" class="input mt-3 max-w-xs"></select>
+  </div>
+
+  <div class="border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4">
+    <div>
+      <div class="font-bold" data-i18n="settings.minimizeTray"></div>
+      <div class="muted text-sm" data-i18n="settings.minimizeTrayHint"></div>
+    </div>
+    <input id="preference-minimize-to-tray" type="checkbox" class="w-5 h-5" />
+  </div>
+
+  <div class="border-t border-[var(--border)] pt-5 flex items-center justify-between gap-4">
+    <div>
+      <div class="font-bold" data-i18n="settings.startWindows"></div>
+      <div class="muted text-sm" data-i18n="settings.startWindowsHint"></div>
+    </div>
+    <input id="preference-start-with-windows" type="checkbox" class="w-5 h-5" />
+  </div>
+</div>
