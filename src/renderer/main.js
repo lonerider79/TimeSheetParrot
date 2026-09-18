@@ -2,6 +2,7 @@
 // The renderer loads every screen from an HTML file, obtains locale files from
 // the Electron main process, and uses the preload API for all native operations.
 import Chart from 'chart.js/auto'
+import parrotImageUrl from './assets/parrotTS.png?url'
 
 // Load the application stylesheet before rendering any UI.
 // Without this import Vite does not include styles.css in the renderer bundle.
@@ -43,6 +44,18 @@ let dashboardProjectFilter = ''
 let timerInterval = null
 let runningCardInterval = null
 let removeUpdaterStatusListener = null
+
+function setTemplate(root, template) {
+  root.innerHTML = template
+
+  root.querySelectorAll('img').forEach((image) => {
+    if(image.src.toLowerCase().includes('parrot')) {
+      image.src = parrotImageUrl
+    }
+  })
+}
+
+
 
 function t(key) {
   return localeDictionary[key] ?? key
@@ -1678,7 +1691,7 @@ function closeEntityModal() {
 //render about page
 async function renderAbout() {
   const view = document.querySelector('#view')
-  view.innerHTML = aboutTemplate
+  setTemplate(view, aboutTemplate)
   applyTranslations(view)
   hydrateIcons(view)
 
@@ -1721,7 +1734,7 @@ async function renderQuit() {
   })
 }
 function renderFloatingTimer() {
-  appElement.innerHTML = floatingTimerTemplate
+  setTemplate(appElement, floatingTimerTemplate)
   applyTranslations(appElement)
   hydrateIcons(appElement)
 
@@ -1784,7 +1797,7 @@ function renderFloatingTimer() {
 }
 
 function renderWorkspace() {
-  appElement.innerHTML = workspaceTemplate
+  setTemplate(appElement, workspaceTemplate)
   applyTranslations(appElement)
   hydrateIcons(appElement)
 
@@ -1846,7 +1859,7 @@ function renderWorkspace() {
 }
 
 async function renderApplicationShell() {
-  appElement.innerHTML = shellTemplate
+  setTemplate(appElement, shellTemplate)
   applyTranslations(appElement)
   hydrateIcons(appElement)
 
@@ -1908,7 +1921,7 @@ async function boot() {
     return
   }
 
-  appElement.innerHTML = splashTemplate
+  setTemplate(appElement, splashTemplate)
   applyTranslations(appElement)
 
   window.setTimeout(async () => {
