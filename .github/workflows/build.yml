@@ -52,7 +52,7 @@ jobs:
 
   prepare-release:
     name: Prepare GitHub draft release
-#    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: quality
     runs-on: ubuntu-latest
     permissions:
@@ -76,7 +76,7 @@ jobs:
   build:
     name: Build ${{ matrix.name }}
     needs: [quality, prepare-release]
-    #if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -105,10 +105,33 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and publish platform artifacts
+      - name: Build platform artifacts
+        run: ${{ matrix.build_command }}
+
+      - name: Upload platform artifacts to GitHub Release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ${{ matrix.build_command }}
+        run: |
+          set -e
+
+          for attempt in 1 2 3; do
+            if gh release upload \
+              "${GITHUB_REF_NAME}" \
+              release/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber; then
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              echo "Upload attempt $attempt failed; retrying..."
+              sleep 15
+            fi
+          done
+
+          echo "Unable to upload release artifacts after 3 attempts."
+          exit 1
 
       - name: Upload build artifacts for debugging
         uses: actions/upload-artifact@v7
@@ -119,7 +142,7 @@ jobs:
 
   publish-release:
     name: Publish GitHub Release
-    # if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
     permissions:

@@ -99,7 +99,7 @@ Build artifacts will be placed in the `dist/` directory.
 
 ## 🔄 GitHub Release & Auto-Updates
 
-The repository uses a CI workflow that creates a **draft GitHub Release** for tagged versions. Each platform build (Windows, Linux, macOS) publishes its own installer and `electron-builder` update metadata to that draft. The final job publishes the release automatically once all three builds succeed.
+The repository uses a CI workflow that creates a **draft GitHub Release** for tagged versions. Each platform build (Windows, Linux, macOS) publishes its own installer and `electron-builder` update metadata to that draft. The final job publishes the release automatically once all three builds succeed. There are no publisher certificates, hence on Mac a local build helps to avoid warning issues.
 
 ### Creating a Release
 
