@@ -231,6 +231,24 @@ function getLocaleSummary() {
     })
 }
 
+// Push the current running entry (or null) to every open window so the
+// dashboard, timer page and floating timer always show the same state.
+function broadcastTimerState() {
+  let running = null
+
+  try {
+    running = repository.getRunning()
+  } catch (error) {
+    console.error('Unable to read running timer:', error)
+  }
+
+  BrowserWindow.getAllWindows().forEach((browserWindow) => {
+    if (!browserWindow.isDestroyed()) {
+      browserWindow.webContents.send('timer:changed', running)
+    }
+  })
+}
+
 function loadRenderer(browserWindow, hash = '') {
   if (isDevelopment) {
     return browserWindow.loadURL(`${rendererUrl}${hash}`)
@@ -547,15 +565,40 @@ function setupIpc() {
   ipcMain.handle('projects:archive', (_, projectId) => repository.archiveProject(projectId))
 
   ipcMain.handle('timer:running', () => repository.getRunning())
-  ipcMain.handle('timer:start', (_, payload) => {
-    return repository.startTimer(Number(payload.task_id), new Date().toISOString())
-  })
+  // The main process (SQLite) is the single source of truth for the running
+  // timer. Every mutation ends by broadcasting the new state to all windows.
+  const startIfIdle = (taskId) => {
+    const running = repository.getRunning()
+
+    if (running) {
+      return running // never create a second running entry
+    }
+
+    const entry = repository.startTimer(Number(taskId), new Date().toISOString())
+    broadcastTimerState()
+
+    return entry
+  }
+
+  ipcMain.handle('timer:start', (_, payload) => startIfIdle(payload.task_id))
 
   ipcMain.handle('timer:stop', (_, payload) => {
-    const timeEntryId = payload.time_entry_id ?? payload.timeEntryId
-    const durationSeconds = Number(payload.duration_seconds ?? payload.durationSeconds ?? 0)
+    const timeEntryId = Number(payload.time_entry_id ?? payload.timeEntryId)
+    const running = repository.getRunning()
 
-    return repository.stopTimer(Number(timeEntryId), new Date().toISOString(), durationSeconds)
+    // Already stopped from another window: don't overwrite ended_at, just resync.
+    if (!running || running.time_entry_id !== timeEntryId) {
+      broadcastTimerState()
+      return null
+    }
+
+    // Duration is computed here rather than trusted from a renderer's clock.
+    const now = Date.now()
+    const durationSeconds = Math.max(0, Math.round((now - new Date(running.started_at).getTime()) / 1000))
+    const entry = repository.stopTimer(timeEntryId, new Date(now).toISOString(), durationSeconds)
+    broadcastTimerState()
+
+    return entry
   })
 
   ipcMain.handle('timeEntries:listRecent', (_, limit) => {
@@ -563,16 +606,20 @@ function setupIpc() {
   })
 
   ipcMain.handle('timeEntries:update', (_, payload) => {
-    return repository.updateTimeEntry(payload)
+    const entry = repository.updateTimeEntry(payload)
+    broadcastTimerState()
+
+    return entry
   })
 
   ipcMain.handle('timeEntries:delete', (_, timeEntryId) => {
-    return repository.deleteTimeEntry(Number(timeEntryId))
+    const result = repository.deleteTimeEntry(Number(timeEntryId))
+    broadcastTimerState()
+
+    return result
   })
 
-  ipcMain.handle('timeEntries:restart', (_, taskId) => {
-    return repository.startTimer(Number(taskId), new Date().toISOString())
-  })
+  ipcMain.handle('timeEntries:restart', (_, taskId) => startIfIdle(taskId))
 
   ipcMain.handle('timesheet:get', (_, payload) => {
     return repository.getEntries(payload.startIso, payload.endIso)

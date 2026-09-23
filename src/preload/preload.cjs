@@ -78,6 +78,16 @@ contextBridge.exposeInMainWorld('timesheetAPI', {
     running: () => ipcRenderer.invoke('timer:running'),
     start: (payload) => ipcRenderer.invoke('timer:start', payload),
     stop: (payload) => ipcRenderer.invoke('timer:stop', payload),
+    // Fires in every window whenever the running timer changes (start, stop,
+    // restart, edit, delete). The callback receives the running entry or null.
+    onChanged: (callback) => {
+      const listener = (_, runningEntry) => callback(runningEntry)
+      ipcRenderer.on('timer:changed', listener)
+
+      return () => {
+        ipcRenderer.removeListener('timer:changed', listener)
+      }
+    },
   },
 
   timeEntries: {

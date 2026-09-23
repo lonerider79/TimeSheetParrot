@@ -1,6 +1,6 @@
 {
   "name": "TimeSheetParrot",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A local-first desktop timesheet and task timer.",
   "main": "src/main/main.cjs",
   "author": {
@@ -23,8 +23,8 @@
     "build:linux": "npm run rebuild && npm run build:web && electron-builder --linux --publish never",
     "build:mac": "npm run rebuild && npm run build:web && electron-builder --mac --publish never",
     "build:all": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish never",
-    "format": "prettier --write \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json,md}\"",
+    "format": "prettier --write \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json}\"",
     "release": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish always"
   },
   "dependencies": {

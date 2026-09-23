@@ -119,6 +119,9 @@ button {
   justify-content: center;
   gap: 0.45rem;
 }
+.btn.hidden {
+  display: none !important;
+}
 
 .btn:hover {
   transform: translateY(-1px);
@@ -313,7 +316,7 @@ button {
 }
 
 .modal-backdrop.hidden {
-  display: none;
+  display: none !important;
 }
 
 .modal-card {

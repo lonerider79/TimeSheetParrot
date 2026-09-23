@@ -44,6 +44,8 @@ let dashboardProjectFilter = ''
 let timerInterval = null
 let runningCardInterval = null
 let removeUpdaterStatusListener = null
+let removeTimerSyncListener = null
+let floatingTimerRefresh = null // set only in the floating timer window
 
 function setTemplate(root, template) {
   root.innerHTML = template
@@ -505,6 +507,38 @@ function populateTaskSelect(select, selectedTaskId) {
     })),
     selectedTaskId,
   )
+}
+
+// Keeps this window's runningEntry in step with the main process. Each window
+// (main app, floating timer) is a separate renderer with its own JS state, so
+// they can only agree by listening to the main process's 'timer:changed' event.
+function refreshTimerViews() {
+  if (floatingTimerRefresh) {
+    floatingTimerRefresh(true)
+    return
+  }
+
+  if (currentRoute === 'dashboard' && document.querySelector('#running-card')) {
+    renderDashboard()
+  } else if (currentRoute === 'timer' && document.querySelector('#timer-display')) {
+    updateTimerScreen()
+    renderEntryHistory()
+  }
+}
+
+function attachTimerSyncListener() {
+  removeTimerSyncListener?.()
+
+  removeTimerSyncListener = api.timer.onChanged((entry) => {
+    runningEntry = entry ?? null
+    refreshTimerViews()
+  })
+
+  // Safety net: resync when the window regains focus.
+  window.addEventListener('focus', async () => {
+    runningEntry = await api.timer.running()
+    refreshTimerViews()
+  })
 }
 
 async function startTimer(taskId) {
@@ -1738,7 +1772,11 @@ function renderFloatingTimer() {
   applyTranslations(appElement)
   hydrateIcons(appElement)
 
-  const update = () => {
+  let renderedKey = null
+
+  // Rebuilds the controls. Only done when the timer state changes, so the task
+  // <select> isn't reset every second.
+  const renderFull = () => {
     const taskElement = document.querySelector('#float-task')
     const timeElement = document.querySelector('#float-time')
     const metaElement = document.querySelector('#float-meta')
@@ -1748,27 +1786,24 @@ function renderFloatingTimer() {
       return
     }
 
+    controls.replaceChildren()
+
     if (runningEntry) {
       taskElement.textContent = runningEntry.task_name
-      timeElement.textContent = formatClock(
-        (Date.now() - new Date(runningEntry.started_at).getTime()) / 1000,
-      )
       metaElement.textContent = billingLabel(runningEntry)
-      controls.replaceChildren()
 
       const stop = createElement('button', 'btn btn-danger w-full')
       stop.innerHTML = `${icon('stop', 'w-4 h-4')}<span>${escapeHtml(t('timer.stopSave'))}</span>`
       stop.onclick = async () => {
         await stopRunningTimer()
         await loadCommonData()
-        update()
+        refresh(true)
       }
       controls.appendChild(stop)
     } else {
       taskElement.textContent = t('floating.ready')
       timeElement.textContent = '00:00:00'
       metaElement.textContent = t('floating.select')
-      controls.replaceChildren()
 
       const select = document.createElement('select')
       select.className = 'input flex-1'
@@ -1777,8 +1812,8 @@ function renderFloatingTimer() {
       const start = createElement('button', 'btn btn-primary')
       start.innerHTML = icon('play', 'w-4 h-4')
       start.onclick = async () => {
-        runningEntry = await startTimer(select.value)
-        update()
+        await startTimer(select.value)
+        refresh(true)
       }
 
       const row = createElement('div', 'flex gap-2')
@@ -1789,11 +1824,34 @@ function renderFloatingTimer() {
     hydrateIcons(appElement)
   }
 
+  const tick = () => {
+    const timeElement = document.querySelector('#float-time')
+
+    if (runningEntry && timeElement) {
+      timeElement.textContent = formatClock(
+        (Date.now() - new Date(runningEntry.started_at).getTime()) / 1000,
+      )
+    }
+  }
+
+  const refresh = (force = false) => {
+    const key = runningEntry ? `running:${runningEntry.time_entry_id}` : 'idle'
+
+    if (force || key !== renderedKey) {
+      renderedKey = key
+      renderFull()
+    }
+
+    tick()
+  }
+
+  floatingTimerRefresh = refresh
+
   document.querySelector('#float-close').onclick = () => api.window.closeTimer()
   document.querySelector('#float-min').onclick = () => api.window.minimize()
 
-  update()
-  window.setInterval(update, 1000)
+  refresh(true)
+  window.setInterval(refresh, 1000)
 }
 
 function renderWorkspace() {
@@ -1906,6 +1964,7 @@ async function navigate(route) {
 
 async function boot() {
   attachUpdaterStatusListener()
+  attachTimerSyncListener()
   await loadLocales()
 
   if (location.hash === '#/workspace') {
