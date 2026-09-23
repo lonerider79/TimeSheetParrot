@@ -23,7 +23,7 @@ So I built **Timesheet Parrot** — a dead-simple, open-source replacement that 
 - 📤 **Export reports** (Excel / print-friendly formats)
 - 💾 **100% local SQLite storage** — your data, your control, no cloud required
 - 🖥️ **Cross-platform** — Windows, Linux, and macOS
-- 🔄 **Auto-updates** via GitHub releases (no manual checking)
+- 🔄 **Auto-updates** via GitHub releases (this is still WIP)
 
 ---
 
