@@ -88,11 +88,21 @@ jobs:
           npm run build:web
           npx electron-builder ${{ matrix.build_args }} --publish never
 
-      - name: Upload build artifacts for debugging
+      - name: Upload release assets
         uses: actions/upload-artifact@v7
         with:
           name: timesheet-parrot-${{ matrix.name }}
-          path: release/*
+          path: |
+            release/*.exe
+            release/*.exe.blockmap
+            release/*.AppImage
+            release/*.AppImage.blockmap
+            release/*.deb
+            release/*.dmg
+            release/*.dmg.blockmap
+            release/*.zip
+            release/*.zip.blockmap
+            release/latest*.yml
           if-no-files-found: error
 
   publish-release:
