@@ -50,32 +50,9 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
-  prepare-release:
-    name: Prepare GitHub draft release
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: quality
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Create draft release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            echo "Release ${GITHUB_REF_NAME} already exists."
-          else
-            gh release create "${GITHUB_REF_NAME}" \
-              --repo "${GITHUB_REPOSITORY}" \
-              --title "Timesheet Parrot ${GITHUB_REF_NAME#v}" \
-              --generate-notes \
-              --draft
-          fi
-
   build:
     name: Build ${{ matrix.name }}
-    needs: [quality, prepare-release]
+    needs: quality
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
@@ -84,13 +61,13 @@ jobs:
         include:
           - name: Windows x64
             os: windows-latest
-            platform: win
+            build_args: --win --x64
           - name: Linux x64
             os: ubuntu-latest
-            platform: linux
-          - name: macOS
+            build_args: --linux --x64
+          - name: macOS x64 and arm64
             os: macos-latest
-            platform: mac
+            build_args: --mac --x64 --arm64
 
     steps:
       - name: Checkout
@@ -103,13 +80,13 @@ jobs:
           package-manager-cache: false
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build platform artifacts
         run: |
           npm run rebuild
           npm run build:web
-          npx electron-builder --${{ matrix.platform }} --publish never
+          npx electron-builder ${{ matrix.build_args }} --publish never
 
       - name: Upload build artifacts for debugging
         uses: actions/upload-artifact@v7
@@ -133,7 +110,7 @@ jobs:
           pattern: timesheet-parrot-*
           path: release-assets
 
-      - name: Upload assets and publish release
+      - name: Create release and upload assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -147,9 +124,13 @@ jobs:
             exit 1
           fi
 
-          gh release upload "${GITHUB_REF_NAME}" "${assets[@]}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --clobber --force
-          gh release edit "${GITHUB_REF_NAME}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --draft=false
+          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "${assets[@]}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "${assets[@]}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "Timesheet Parrot ${GITHUB_REF_NAME#v}" \
+              --generate-notes
+          fi
