@@ -1036,7 +1036,14 @@ function renderTimerScreen() {
   document.querySelector('#floating-timer').addEventListener('click', () => {
     api.window.openTimer()
   })
+  document.querySelector('#manual-timer').addEventListener('click', () => {
+    const taskId = Number(document.querySelector('#timer-select').value)
 
+    if (!taskId) {
+      return
+    }
+    addEntryModal()
+  })
   renderEntryHistory()
 }
 
@@ -1046,7 +1053,7 @@ function updateTimerScreen() {
   const metaElement = document.querySelector('#timer-meta')
   const startButton = document.querySelector('#timer-start')
   const stopButton = document.querySelector('#timer-stop')
-
+  const addTimeButton = document.querySelector('#manual-timer')
   if (!taskElement) {
     return
   }
@@ -1056,7 +1063,7 @@ function updateTimerScreen() {
     metaElement.textContent = billingLabel(runningEntry)
     startButton.classList.add('hidden')
     stopButton.classList.remove('hidden')
-
+    addTimeButton.classList.add('hidden')
     const seconds = (Date.now() - new Date(runningEntry.started_at).getTime()) / 1000
     displayElement.textContent = formatClock(seconds)
   } else {
@@ -1064,6 +1071,7 @@ function updateTimerScreen() {
     metaElement.textContent = t('timer.selectPrompt')
     startButton.classList.remove('hidden')
     stopButton.classList.add('hidden')
+    addTimeButton.classList.remove('hidden')
     displayElement.textContent = '00:00:00'
   }
 
@@ -1202,12 +1210,54 @@ function updateEntryDurationPreview() {
   const seconds = Math.max(0, (new Date(end) - new Date(start)) / 1000)
   preview.textContent = `${t('timer.duration')}: ${formatDuration(seconds)}`
 }
+function addEntryModal() {
+  const modal = document.querySelector('#entry-modal')
+  modal.classList.remove('hidden')
+  hydrateIcons(modal)
+  document.querySelector('#entry-end').required = true
+  //document.querySelector('#entry-id').value = entry.time_entry_id
+  populateTaskSelect(document.querySelector('#entry-task'), 0)
+  document.querySelector('#entry-start').value = toDateTimeLocal(new Date(Date.now() - 10 * 60 * 1000).toISOString())
+  document.querySelector('#entry-end').value =  toDateTimeLocal(new Date().toISOString())
+  document.querySelector('#entry-note').value =  ''
+  updateEntryDurationPreview()
 
+  document.querySelector('#entry-start').oninput = updateEntryDurationPreview
+  document.querySelector('#entry-end').oninput = updateEntryDurationPreview
+  document.querySelector('#entry-modal-close').onclick = closeEntryModal
+  document.querySelector('#entry-cancel').onclick = closeEntryModal
+  document.querySelector('#entry-form').onsubmit = async (event) => {
+    event.preventDefault()
+
+    const startedAt = fromDateTimeLocal(document.querySelector('#entry-start').value)
+    const endedAt = fromDateTimeLocal(document.querySelector('#entry-end').value)
+    const durationSeconds = endedAt
+      ? Math.max(0, (new Date(endedAt) - new Date(startedAt)) / 1000)
+      : 0
+    runningEntry = await api.timer.start({
+        task_id: Number(document.querySelector('#entry-task').value),
+      })
+      let entry = runningEntry.time_entry_id
+      await stopRunningTimer()
+      await api.timeEntries.update({
+        time_entry_id: entry,
+        task_id: Number(document.querySelector('#entry-task').value),
+        started_at: startedAt,
+        ended_at: endedAt,
+        duration_seconds: durationSeconds,
+        note: document.querySelector('#entry-note').value,
+      })
+
+    closeEntryModal()
+    await loadCommonData()
+    renderEntryHistory()
+  }
+}
 function openEntryModal(entry) {
   const modal = document.querySelector('#entry-modal')
   modal.classList.remove('hidden')
   hydrateIcons(modal)
-
+  document.querySelector('#entry-end').required = false
   document.querySelector('#entry-id').value = entry.time_entry_id
   populateTaskSelect(document.querySelector('#entry-task'), entry.task_id)
   document.querySelector('#entry-start').value = toDateTimeLocal(entry.started_at)

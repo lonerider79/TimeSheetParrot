@@ -82,6 +82,7 @@
   "timer.noEntries": "ഇതുവരെ സമയ എൻട്രികൾ ഇല്ല.",
   "timer.duration": "ദൈർഘ്യം",
   "timer.durationWillBeCalculated": "ആരംഭവും അവസാന സമയവും ഉപയോഗിച്ച് ദൈർഘ്യം കണക്കാക്കും.",
+  "timer.manual": "സമയ എൻട്രി ചെയ്യുക",
   "floating.timer": "ഫ്ലോട്ടിംഗ് ടൈമർ",
   "floating.ready": "രേഖപ്പെടുത്താൻ തയ്യാറാണ്",
   "floating.select": "ആരംഭിക്കാൻ ഒരു ടാസ്‌ക് തിരഞ്ഞെടുക്കുക.",

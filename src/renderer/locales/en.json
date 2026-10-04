@@ -82,6 +82,7 @@
   "timer.noEntries": "No time entries yet.",
   "timer.duration": "Duration",
   "timer.durationWillBeCalculated": "Duration is calculated from the start and end times.",
+  "timer.manual": "Add time manually",
   "floating.timer": "Floating timer",
   "floating.ready": "Ready to track",
   "floating.select": "Select a task to start.",
