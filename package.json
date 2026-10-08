@@ -1,6 +1,6 @@
 {
   "name": "TimeSheetParrot",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A local-first desktop timesheet and task timer.",
   "main": "src/main/main.cjs",
   "author": {
@@ -125,10 +125,14 @@
     },
     "artifactName": "Timesheet-Parrot-${version}-${os}-${arch}.${ext}",
     "nsis": {
+      "artifactName": "Timesheet-Parrot-${version}-${os}-${arch}-setup.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "Timesheet-Parrot-${version}-${os}-${arch}-portable.${ext}"
     },
     "publish": [
       {
