@@ -8,6 +8,15 @@
 
 ---
 
+<details>
+<summary>📸 Screenshots</summary>
+<img width="640" height="480" alt="Dashboard" src="https://github.com/user-attachments/assets/cae88591-a4e9-4780-b761-ffb7f3a862d1" />
+<img width="640" height="480" alt="Timer" src="https://github.com/user-attachments/assets/ebc07e97-41d8-4b79-87a3-400a322402bb" />
+<img width="640" height="480" alt="Settings in light theme" src="https://github.com/user-attachments/assets/3e17d837-a519-4d18-b70e-2034f721a229" />
+</details>
+
+---
+
 ## ✨ Why I Built This
 
 After a popular time tracker paywalled basic export features overnight, I realized how risky it is to depend on cloud apps for something as simple as logging hours. The alternatives were either overpriced or packed with project management features I didn't need.
