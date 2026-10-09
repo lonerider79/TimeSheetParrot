@@ -51,7 +51,7 @@ Grab the latest installer for your platform from the [Releases](https://github.c
 | Linux | `.AppImage` | ✅ Yes |
 | macOS | `.dmg` / `.zip` | ✅ Yes (code signing required for production) |
 
-> **Note:** Portable builds are available but do not support auto-updates.
+> **Note:** Portable builds are available for windows but do not support auto-updates.
 
 ---
 
@@ -75,8 +75,6 @@ npm install
 # Start the development server
 npm run dev
 ```
-
-> ⚠️ **Do not run `npm audit fix --force`.** The project pins `exceljs@4.4.0` and uses npm overrides for stale transitive dependencies. Forcing an audit fix can downgrade ExcelJS and break functionality.
 
 ---
 
