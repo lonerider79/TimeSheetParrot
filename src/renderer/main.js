@@ -792,7 +792,8 @@ async function exportDashboardTimesheet() {
     endIso: range.end.toISOString(),
   })
 
-  const rows = entries.filter(entryMatchesFilters).map((entry) => ({
+  const filteredEntries = entries.filter(entryMatchesFilters)
+  const detailRows = filteredEntries.map((entry) => ({
     date: new Intl.DateTimeFormat(locale).format(new Date(entry.started_at)),
     day: getDayName(new Date(entry.started_at), false),
     task: entry.task_name,
@@ -805,6 +806,48 @@ async function exportDashboardTimesheet() {
     seconds: Number(entry.duration_seconds || 0),
     note: entry.note || '',
   }))
+
+  const calculated = calculateDailySeconds(filteredEntries, range.start, range.end)
+  const weeklyRows = createWeeklyRows(range.start, range.end, calculated.daily, calculated.groups)
+    .map((group) => {
+      const days = []
+      const dayDates = []
+      for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+        const day = new Date(group.weekStart)
+        day.setDate(day.getDate() + dayIndex)
+        dayDates.push(day.toISOString())
+        const key = day.toISOString().slice(0, 10)
+        days.push(calculated.daily.get(key)?.get(group.id) || 0)
+      }
+      return {
+        name: group.name,
+        weekStart: group.weekStart.toISOString(),
+        weekEnd: group.weekEnd.toISOString(),
+        dayDates,
+        days,
+        seconds: days.reduce((sum, value) => sum + value, 0),
+      }
+    })
+
+  const billing = new Map()
+  for (const entry of filteredEntries) {
+    const groupName = getGroupValue(entry)
+    const groupId = `${dashboardGroup}:${dashboardGroup === 'client' ? entry.client_id || 'none' : dashboardGroup === 'project' ? entry.project_id || 'none' : entry.task_id}`
+    const key = `${groupId}:${entry.effective_currency || ''}:${entry.effective_rate || 0}:${entry.billable ? 'billable' : 'nonbillable'}`
+    const item = billing.get(key) || {
+      name: groupName,
+      billable: Boolean(entry.billable),
+      currency: entry.effective_currency || '',
+      currencySymbol: entry.effective_currency_symbol || '',
+      rate: Number(entry.effective_rate || 0),
+      seconds: 0,
+      amount: 0,
+    }
+    const seconds = Number(entry.duration_seconds || 0)
+    item.seconds += seconds
+    if (entry.billable) item.amount += (seconds / 3600) * item.rate
+    billing.set(key, item)
+  }
 
   const labels = {
     appName: t('app.name'),
@@ -824,10 +867,20 @@ async function exportDashboardTimesheet() {
     notes: t('export.notes'),
     yes: t('export.yes'),
     no: t('export.no'),
+    week: t('dashboard.week'),
+    total: t('common.total'),
+    weeklyTotal: t('export.weeklyTotal'),
+    billingSummary: t('export.billingSummary'),
+    detailsSheet: t('export.detailsSheet'),
+    group: t(`dashboard.${dashboardGroup}`),
+    timeFormat: timeDisplayFormat,
+    locale,
   }
 
   const result = await api.timesheet.export({
-    rows,
+    rows: detailRows,
+    weeklyRows,
+    billingRows: Array.from(billing.values()),
     rangeLabel: range.label,
     labels,
     defaultPath: `Timesheet-Parrot-${range.label.replace(/[^a-zA-Z0-9_-]+/g, '-')}.xlsx`,

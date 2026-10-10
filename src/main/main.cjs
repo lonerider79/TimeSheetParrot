@@ -686,7 +686,7 @@ function setupIpc() {
       return { canceled: true }
     }
 
-    return exportTimesheet(result.filePath, payload.rows, payload.rangeLabel, payload.labels)
+    return exportTimesheet(result.filePath, payload)
   })
 }
 
