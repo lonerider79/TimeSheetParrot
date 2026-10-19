@@ -150,7 +150,7 @@ This project is licensed under the **GNU General Public License v3.0** — see t
 
 ---
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgements
 
 Built with ❤️ for solo developers who just want to track their time without the drama. No cloud. No subscriptions. No nonsense.
 
