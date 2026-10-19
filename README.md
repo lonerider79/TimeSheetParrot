@@ -25,6 +25,24 @@ So I built **Timesheet Parrot** — a dead-simple, open-source replacement that 
 
 ---
 
+## 🌐💬 Language support
+
+Timesheet Parrot supports the following languages:
+
+- Arabic
+- Bengali
+- English
+- Filipino
+- Hebrew
+- Hindi
+- Malayalam
+- Portuguese(Brazilian)
+- Russian
+- Ukrainian
+- Urdu
+
+---
+
 ## 🚀 What It Does
 
 - ⏱️ **Track time** by project and task
