@@ -34,15 +34,16 @@ function isAutoUpdateSupported() {
     return false
   }
 
-  if (process.platform === 'win32' && process.env.PORTABLE_EXECUTABLE_FILE) {
+  if (isPortableVersion()) {
     return false
   }
 
-  if (process.platform === 'linux' && !process.env.APPIMAGE) {
-    return false
-  }
 
   return ['win32', 'darwin', 'linux'].includes(process.platform)
+}
+
+function isPortableVersion() {
+  return (process.platform === 'win32' && Boolean(process.env.PORTABLE_EXECUTABLE_FILE)) || (process.platform === 'linux' && Boolean(process.env.APPIMAGE))
 }
 
 function sendUpdaterStatus(status) {
@@ -103,6 +104,7 @@ async function checkForUpdates() {
     return {
       supported: false,
       state: 'unsupported',
+      portable: isPortableVersion(),
     }
   }
 
@@ -772,7 +774,22 @@ function finishWorkspace() {
   }
 }
 
-app.whenReady().then(() => {
+const gotLock = app.requestSingleInstanceLock();
+
+if (!gotLock) {
+  // Another instance already owns the lock, so exit immediately.
+  app.quit();
+} else {
+  app.on('second-instance', (event, argv, workingDirectory) => {
+    // Someone tried to launch a second copy: surface the existing window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      if (!mainWindow.isVisible()) mainWindow.show(); // hidden in the tray
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
   scanLocaleFiles()
 
   const databasePath = getDatabasePath(app.getPath('userData'))
@@ -809,7 +826,8 @@ app.whenReady().then(() => {
 
     mainWindow?.show()
   })
-})
+  });
+}
 
 app.on('before-quit', () => {
   app.isQuitting = true

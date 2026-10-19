@@ -1846,11 +1846,14 @@ async function renderAbout() {
   const checkButton = document.querySelector('#check-updates-btn')
   const installButton = document.querySelector('#install-update-btn')
   const statusElement = document.querySelector('#update-status')
-
   checkButton?.addEventListener('click', async () => {
     statusElement.textContent = t('update.checking')
     installButton?.classList.add('hidden')
-    await api.updater.check()
+    const result = await api.updater.check()
+
+    if (result.state === 'unsupported') {
+      statusElement.textContent = t(result.portable ? 'update.portable' : 'update.unsupported')
+    }
   })
 
   installButton?.addEventListener('click', async () => {
