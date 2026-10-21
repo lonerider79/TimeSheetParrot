@@ -1,6 +1,6 @@
 {
   "name": "TimeSheetParrot",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "A local-first desktop timesheet and task timer.",
   "main": "src/main/main.cjs",
   "author": {
@@ -18,11 +18,11 @@
     "start": "npm run dev",
     "build:web": "vite build",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "build": "npm run rebuild && npm run build:web && electron-builder",
-    "build:win": "npm run rebuild && npm run build:web && electron-builder --win --publish always",
-    "build:linux": "npm run rebuild && npm run build:web && electron-builder --linux --publish always",
-    "build:mac": "npm run rebuild && npm run build:web && electron-builder --mac --publish always",
-    "build:all": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish never",
+    "build": "node scripts/build-local.cjs",
+    "build:win": "node scripts/build-local.cjs win",
+    "build:linux": "node scripts/build-local.cjs linux",
+    "build:mac": "node scripts/build-local.cjs mac",
+    "build:all": "node scripts/build-local.cjs all",
     "format": "prettier --write \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json}\"",
     "format:check": "prettier --check \"src/**/*.{js,cjs,html,json,css}\" \"*.{js,json}\"",
     "release": "npm run rebuild && npm run build:web && electron-builder --win --linux --mac --publish always"

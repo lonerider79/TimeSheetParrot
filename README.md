@@ -108,17 +108,48 @@ npm run dev
 ## 📦 Build Locally
 
 ```bash
-# Windows
+# Windows (run on Windows)
 npm run build:win
 
-# Linux
+# Linux (run on Linux, including WSL)
 npm run build:linux
 
-# macOS
+# macOS (run on macOS)
 npm run build:mac
 ```
 
-Build artifacts will be placed in the `dist/` directory.
+Installers and update metadata will be placed in `release/`. The `dist/` directory contains the renderer web build.
+
+Local build commands never publish to GitHub. `npm run build` builds for the current OS.
+The GitHub Actions workflow and its release publishing commands are independent of these local commands.
+
+AppImage packaging cannot run directly in Windows PowerShell or Command Prompt. The missing
+`darwin/mksquashfs` error comes from attempting to use AppImage tooling on Windows.
+This app also includes the native `better-sqlite3` module, so build each platform on its own OS.
+`build:all` reports this requirement instead of attempting incompatible cross-platform builds.
+
+To build Linux on a Windows computer, install WSL with Ubuntu, then run the following **inside Ubuntu**.
+Use Linux Node.js 24 or newer (`node -p process.platform` must print `linux`).
+Install the Linux build prerequisites first:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+Use a separate checkout in the Linux home directory so Linux and Windows do not share `node_modules`:
+
+```bash
+git clone https://github.com/lonerider79/TimeSheetParrot.git ~/TimeSheetParrot
+cd ~/TimeSheetParrot
+# Apply the local build-file changes here too if they have not been committed/pushed.
+npm ci
+npm run build:linux
+```
+
+The AppImage and deb packages will be under `~/TimeSheetParrot/release/`.
+Run `explorer.exe .` from that directory to access them in Windows Explorer.
+On Windows, rebuilding `better-sqlite3` from source may require Python and the Visual Studio C++ build tools.
 
 ---
 
